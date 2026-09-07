@@ -92,7 +92,7 @@ function handleView(course: CourseViewModel) {
           text-(--color-text-secondary)
         "
       >
-        No students found.
+        No courses found.
       </div>
 
       <Pagination
