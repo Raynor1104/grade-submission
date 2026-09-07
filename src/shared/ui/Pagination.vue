@@ -6,6 +6,7 @@ const props = withDefaults(
     page: number
     total: number
     pageSize?: number
+    itemLabel?: string
   }>(),
   {
     pageSize: 10,
@@ -100,6 +101,7 @@ function goToPage(page: number) {
       {{ startItem }}–{{ endItem }}
       of
       {{ total }}
+      {{ itemLabel }}
     </p>
 
     <div class="flex items-center gap-1">

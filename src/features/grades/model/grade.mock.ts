@@ -1,0 +1,148 @@
+import type { GradeViewModel } from './grade.types'
+
+export const mockGrades: GradeViewModel[] = [
+  {
+    id: 1,
+    score: 'A',
+    student: { id: 1, name: 'Nguyễn Văn A' },
+    course: { id: 1, code: 'JAVA101', name: 'Java Programming' },
+  },
+  {
+    id: 2,
+    score: 'B+',
+    student: { id: 2, name: 'Trần Thị B' },
+    course: { id: 2, code: 'DBI202', name: 'Database Systems' },
+  },
+  {
+    id: 3,
+    score: '8.5',
+    student: { id: 3, name: 'Lê Văn C' },
+    course: { id: 3, code: 'SWT301', name: 'Software Testing' },
+  },
+  {
+    id: 4,
+    score: 'Pass',
+    student: { id: 4, name: 'Phạm Minh D' },
+    course: { id: 4, code: 'NET205', name: 'Computer Networks' },
+  },
+  {
+    id: 5,
+    score: 'A-',
+    student: { id: 5, name: 'Hoàng Lan E' },
+    course: { id: 5, code: 'SE302', name: 'Software Engineering' },
+  },
+  {
+    id: 6,
+    score: 'B',
+    student: { id: 6, name: 'Sakura Ito' },
+    course: { id: 6, code: 'UIX210', name: 'UX Fundamentals' },
+  },
+  {
+    id: 7,
+    score: '7.8',
+    student: { id: 7, name: 'Đỗ Hải Nam' },
+    course: { id: 1, code: 'JAVA101', name: 'Java Programming' },
+  },
+  {
+    id: 8,
+    score: 'A+',
+    student: { id: 8, name: 'Vũ Thu Hà' },
+    course: { id: 2, code: 'DBI202', name: 'Database Systems' },
+  },
+  {
+    id: 9,
+    score: '9.0',
+    student: { id: 9, name: 'Bùi Quốc Anh' },
+    course: { id: 3, code: 'SWT301', name: 'Software Testing' },
+  },
+  {
+    id: 10,
+    score: 'B-',
+    student: { id: 10, name: 'Đặng Minh Châu' },
+    course: { id: 4, code: 'NET205', name: 'Computer Networks' },
+  },
+  {
+    id: 11,
+    score: '8.2',
+    student: { id: 11, name: 'Phan Đức Long' },
+    course: { id: 5, code: 'SE302', name: 'Software Engineering' },
+  },
+  {
+    id: 12,
+    score: 'Pass',
+    student: { id: 12, name: 'Mai Khánh Linh' },
+    course: { id: 6, code: 'UIX210', name: 'UX Fundamentals' },
+  },
+  {
+    id: 13,
+    score: 'C+',
+    student: { id: 1, name: 'Nguyễn Văn A' },
+    course: { id: 2, code: 'DBI202', name: 'Database Systems' },
+  },
+  {
+    id: 14,
+    score: '7.5',
+    student: { id: 2, name: 'Trần Thị B' },
+    course: { id: 3, code: 'SWT301', name: 'Software Testing' },
+  },
+  {
+    id: 15,
+    score: 'A',
+    student: { id: 3, name: 'Lê Văn C' },
+    course: { id: 4, code: 'NET205', name: 'Computer Networks' },
+  },
+  {
+    id: 16,
+    score: 'B+',
+    student: { id: 4, name: 'Phạm Minh D' },
+    course: { id: 5, code: 'SE302', name: 'Software Engineering' },
+  },
+  {
+    id: 17,
+    score: '8.8',
+    student: { id: 5, name: 'Hoàng Lan E' },
+    course: { id: 6, code: 'UIX210', name: 'UX Fundamentals' },
+  },
+  {
+    id: 18,
+    score: 'A-',
+    student: { id: 6, name: 'Sakura Ito' },
+    course: { id: 1, code: 'JAVA101', name: 'Java Programming' },
+  },
+  {
+    id: 19,
+    score: '6.9',
+    student: { id: 7, name: 'Đỗ Hải Nam' },
+    course: { id: 2, code: 'DBI202', name: 'Database Systems' },
+  },
+  {
+    id: 20,
+    score: 'B',
+    student: { id: 8, name: 'Vũ Thu Hà' },
+    course: { id: 3, code: 'SWT301', name: 'Software Testing' },
+  },
+  {
+    id: 21,
+    score: '9.3',
+    student: { id: 9, name: 'Bùi Quốc Anh' },
+    course: { id: 4, code: 'NET205', name: 'Computer Networks' },
+  },
+  {
+    id: 22,
+    score: 'C',
+    student: { id: 10, name: 'Đặng Minh Châu' },
+    course: { id: 5, code: 'SE302', name: 'Software Engineering' },
+  },
+  {
+    id: 23,
+    score: '8.0',
+    student: { id: 11, name: 'Phan Đức Long' },
+    course: { id: 6, code: 'UIX210', name: 'UX Fundamentals' },
+  },
+  {
+    id: 24,
+    score: 'Pass',
+    student: { id: 12, name: 'Mai Khánh Linh' },
+    course: { id: 1, code: 'JAVA101', name: 'Java Programming' },
+  },
+]
