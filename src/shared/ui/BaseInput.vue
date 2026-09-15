@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import {
+  computed,
+  useId,
+} from 'vue'
+
 const props = withDefaults(
   defineProps<{
     modelValue?: string
+    id?: string
     label?: string
+    ariaLabel?: string
     placeholder?: string
     type?: 'text' | 'password' | 'email'
     disabled?: boolean
@@ -17,6 +24,10 @@ const props = withDefaults(
     required: false,
   },
 )
+
+const generatedId = useId()
+const inputId = computed(() => props.id ?? generatedId)
+const messageId = computed(() => `${inputId.value}-message`)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -34,6 +45,7 @@ function handleInput(event: Event) {
     <label
       v-if="label"
       class="base-input__label"
+      :for="inputId"
     >
       {{ label }}
 
@@ -46,8 +58,12 @@ function handleInput(event: Event) {
     </label>
 
     <input
+      :id="inputId"
       :value="props.modelValue"
       :type="type"
+      :aria-label="ariaLabel"
+      :aria-describedby="error || helper ? messageId : undefined"
+      :aria-invalid="error ? 'true' : undefined"
       :placeholder="placeholder"
       :disabled="disabled"
       class="base-input__control"
@@ -59,6 +75,7 @@ function handleInput(event: Event) {
 
     <p
       v-if="error"
+      :id="messageId"
       class="base-input__error"
     >
       {{ error }}
@@ -66,6 +83,7 @@ function handleInput(event: Event) {
 
     <p
       v-else-if="helper"
+      :id="messageId"
       class="base-input__helper"
     >
       {{ helper }}

@@ -7,9 +7,12 @@ const props = withDefaults(
     total: number
     pageSize?: number
     itemLabel?: string
+    ariaLabel?: string
   }>(),
   {
     pageSize: 10,
+    itemLabel: 'items',
+    ariaLabel: 'Pagination',
   },
 )
 
@@ -104,7 +107,17 @@ function goToPage(page: number) {
       {{ itemLabel }}
     </p>
 
-    <div class="flex items-center gap-1">
+    <div
+      v-if="$slots.note"
+      class="text-sm text-(--color-text-secondary)"
+    >
+      <slot name="note" />
+    </div>
+
+    <nav
+      :aria-label="ariaLabel"
+      class="flex flex-wrap items-center gap-1"
+    >
       <button
         type="button"
         class="pagination-button"
@@ -144,7 +157,7 @@ function goToPage(page: number) {
       >
         Next
       </button>
-    </div>
+    </nav>
   </div>
 </template>
 
