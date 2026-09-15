@@ -50,11 +50,11 @@ const emit = defineEmits<{
                     </td>
 
                     <td>
-                        {{ course.courseCode }}
+                        {{ course.code }}
                     </td>
 
                     <td>
-                        {{ course.courseName }}
+                        {{ course.subject }}
                     </td>
 
                     <td>

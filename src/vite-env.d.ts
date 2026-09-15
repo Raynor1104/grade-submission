@@ -1,20 +1,12 @@
-import { fileURLToPath, URL } from 'node:url'
+/// <reference types="vite/client" />
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
+interface ImportMetaEnv {
+  readonly VITE_API_BASE_URL?: string
+  readonly VITE_AUTH_DEMO_ENABLED?: string
+  readonly VITE_AUTH_DEMO_USERNAME?: string
+  readonly VITE_AUTH_DEMO_PASSWORD?: string
+}
 
-export default defineConfig({
-  plugins: [
-    vue(),
-    tailwindcss(),
-  ],
-
-  resolve: {
-    alias: {
-      '@': fileURLToPath(
-        new URL('./src', import.meta.url),
-      ),
-    },
-  },
-})
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

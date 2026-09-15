@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+import { logout } from '@/app/auth/auth-actions'
+import { authSession } from '@/core/auth/auth-session'
 import AppFooter from '@/shared/ui/AppFooter.vue'
 import AppHeader from '@/shared/ui/AppHeader.vue'
 import AppNav from '@/shared/ui/AppNav.vue'
+
+const router = useRouter()
+
+function handleLogout(): void {
+  void logout(router)
+}
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col">
-    <AppHeader />
+    <AppHeader :username="authSession.username" />
 
-    <AppNav />
+    <AppNav @logout="handleLogout" />
 
     <main
       class="

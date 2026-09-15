@@ -7,6 +7,10 @@ import {
   Users,
 } from '@lucide/vue'
 
+const emit = defineEmits<{
+  logout: []
+}>()
+
 const navItems = [
   {
     label: 'Dashboard',
@@ -86,6 +90,7 @@ const navItems = [
 
       <button
         type="button"
+        aria-label="Log out"
         class="
           ml-auto
           flex
@@ -96,6 +101,7 @@ const navItems = [
           transition-colors
           hover:text-(--color-primary)
         "
+        @click="emit('logout')"
       >
         <LogOut
           :size="16"

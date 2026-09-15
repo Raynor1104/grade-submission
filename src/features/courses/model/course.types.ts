@@ -1,5 +1,13 @@
+export interface CourseDto {
+  id: number
+  subject: string
+  code: string
+  description: string
+}
+
 export interface CourseViewModel {
   id: number
-  courseCode: string
-  courseName: string
+  code: string
+  subject: string
+  description: string
 }

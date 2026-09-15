@@ -3,77 +3,92 @@ import type { CourseViewModel } from './course.types'
 export const mockCourses: CourseViewModel[] = [
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 2,
-        courseCode: 'DBI202',
-        courseName: 'Database Systems'
+        code: 'DBI202',
+        subject: 'Database Systems',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
     {
         id: 1,
-        courseCode: 'JAVA101',
-        courseName: 'Java Programming'
+        code: 'JAVA101',
+        subject: 'Java Programming',
+        description: '',
     },
 ]

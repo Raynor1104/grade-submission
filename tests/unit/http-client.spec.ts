@@ -49,6 +49,33 @@ describe('httpClient', () => {
     await expect(httpClient.delete('/student/1')).resolves.toBeUndefined()
   })
 
+  it('posts JSON without Bearer or auth-expired events when auth is omitted', async () => {
+    const listener = vi.fn()
+    window.addEventListener(AUTH_EXPIRED_EVENT, listener)
+    const fetchMock = vi.fn().mockResolvedValue(new Response(
+      JSON.stringify({ error: 'Unauthenticated' }),
+      { status: 401 },
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await httpClient.post('/authenticate', {
+      username: 'demo',
+      password: 'secret',
+    }, { auth: 'omit' }).catch(() => undefined)
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const headers = new Headers(options.headers)
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/authenticate')
+    expect(options.method).toBe('POST')
+    expect(options.body).toBe(JSON.stringify({
+      username: 'demo',
+      password: 'secret',
+    }))
+    expect(headers.get('Authorization')).toBeNull()
+    expect(listener).not.toHaveBeenCalled()
+    window.removeEventListener(AUTH_EXPIRED_EVENT, listener)
+  })
+
   it('normalizes backend error shapes', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(
       JSON.stringify({ message: 'Student not found', status: 404 }),

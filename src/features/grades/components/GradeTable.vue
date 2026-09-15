@@ -37,7 +37,7 @@ const emit = defineEmits<{
             <td>{{ grade.student.id }}</td>
             <td>{{ grade.student.name }}</td>
             <td>{{ grade.course.code }}</td>
-            <td>{{ grade.course.name }}</td>
+            <td>{{ grade.course.subject ?? '—' }}</td>
             <td>{{ grade.score }}</td>
             <td>
               <BaseButton

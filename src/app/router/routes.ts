@@ -1,15 +1,29 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+import { authSession } from '@/core/auth/auth-session'
+
 export const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'login',
+    component: () =>
+      import('@/features/auth/pages/LoginPage.vue'),
+  },
   {
     path: '/',
     component: () =>
       import('@/app/layouts/MainLayout.vue'),
+    meta: {
+      requiresAuth: true,
+    },
 
     children: [
       {
         path: '',
-        redirect: '/dashboard',
+        name: 'home',
+        redirect: () => authSession.isAuthenticated
+          ? { name: 'dashboard' }
+          : { name: 'login' },
       },
       {
         path: 'dashboard',

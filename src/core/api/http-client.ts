@@ -18,6 +18,12 @@ export interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
   signal?: AbortSignal
+  auth?: 'include' | 'omit'
+}
+
+interface PostRequestOptions {
+  signal?: AbortSignal
+  auth?: 'include' | 'omit'
 }
 
 let accessTokenProvider: AccessTokenProvider = getStoredAccessToken
@@ -25,6 +31,10 @@ let lastExpiredToken: string | null | undefined
 
 export function setAccessTokenProvider(provider: AccessTokenProvider): void {
   accessTokenProvider = provider
+  lastExpiredToken = undefined
+}
+
+export function resetAuthExpiredNotification(): void {
   lastExpiredToken = undefined
 }
 
@@ -47,7 +57,8 @@ async function request<T>(
   path: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  const token = accessTokenProvider()
+  const authMode = options.auth ?? 'include'
+  const token = authMode === 'include' ? accessTokenProvider() : null
   const headers = new Headers({
     Accept: 'application/json',
   })
@@ -72,7 +83,7 @@ async function request<T>(
     })
 
     if (!response.ok) {
-      if (response.status === 401) {
+      if (response.status === 401 && authMode === 'include' && token) {
         notifyAuthExpired(token)
       }
 
@@ -111,6 +122,14 @@ export const httpClient = {
     return request<void>(path, {
       method: 'DELETE',
       signal,
+    })
+  },
+  post<T>(path: string, body: unknown, options: PostRequestOptions = {}) {
+    return request<T>(path, {
+      method: 'POST',
+      body,
+      signal: options.signal,
+      auth: options.auth,
     })
   },
 }

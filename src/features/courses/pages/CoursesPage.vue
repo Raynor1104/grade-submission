@@ -33,7 +33,10 @@ const filteredCourses = computed(() => {
 
   return mockCourses.filter(course => {
     return (
-      course.courseName
+      course.subject
+        .toLowerCase()
+        .includes(keyword) ||
+      course.code
         .toLowerCase()
         .includes(keyword) ||
       String(course.id)

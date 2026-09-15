@@ -105,7 +105,7 @@ function getSelectedId(event: Event) {
               :key="course.id"
               :value="course.id"
             >
-              {{ course.code }} — {{ course.name }}
+              {{ course.code }} — {{ course.subject ?? 'Unnamed course' }}
             </option>
           </select>
 

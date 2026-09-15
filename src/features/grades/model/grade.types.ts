@@ -6,7 +6,15 @@ export interface GradeStudent {
 export interface GradeCourse {
   id: number
   code: string
-  name: string
+  subject?: string
+  description?: string
+}
+
+export interface GradeDto {
+  id: number
+  score: string
+  student: GradeStudent
+  course: GradeCourse
 }
 
 export interface GradeViewModel {

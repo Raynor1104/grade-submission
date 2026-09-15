@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { UserRound } from '@lucide/vue'
+
+withDefaults(
+  defineProps<{
+    username?: string | null
+  }>(),
+  {
+    username: null,
+  },
+)
 </script>
 
 <template>
@@ -42,7 +51,7 @@ import { UserRound } from '@lucide/vue'
           text-(--color-text-secondary)
         "
       >
-        <span>Hello, Tanaka</span>
+        <span>{{ username ? `Hello, ${username}` : 'Hello' }}</span>
 
         <UserRound
           :size="18"
