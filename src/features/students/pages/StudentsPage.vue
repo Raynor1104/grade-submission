@@ -21,12 +21,12 @@ import {
 } from '@/core/api/query-keys'
 import BaseButton from '@/shared/ui/BaseButton.vue'
 import BaseCard from '@/shared/ui/BaseCard.vue'
+import DeleteConfirmDialog from '@/shared/ui/DeleteConfirmDialog.vue'
 import PageHeader from '@/shared/ui/PageHeader.vue'
 import Pagination from '@/shared/ui/Pagination.vue'
 
 import { deleteStudent } from '../api/student.api'
 import { studentQueries } from '../api/student.queries'
-import StudentDeleteDialog from '../components/StudentDeleteDialog.vue'
 import StudentTable from '../components/StudentTable.vue'
 import StudentToolbar from '../components/StudentToolbar.vue'
 import {
@@ -318,9 +318,11 @@ async function handleConfirmDelete(): Promise<void> {
       </Pagination>
     </BaseCard>
 
-    <StudentDeleteDialog
+    <DeleteConfirmDialog
       v-if="deleteTarget"
-      :student="deleteTarget"
+      title="Delete student?"
+      :message="`Are you sure you want to delete “${deleteTarget.name}” (ID: ${deleteTarget.id})?`"
+      warning="Related grade records may also be deleted. This action cannot be undone."
       :is-deleting="isDeleting"
       :error="deleteError"
       @cancel="closeDeleteDialog"

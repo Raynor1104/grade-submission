@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-import StudentDeleteDialog from '@/features/students/components/StudentDeleteDialog.vue'
+import DeleteConfirmDialog from '@/shared/ui/DeleteConfirmDialog.vue'
 import StudentTable from '@/features/students/components/StudentTable.vue'
 import StudentToolbar from '@/features/students/components/StudentToolbar.vue'
 import type { StudentViewModel } from '@/features/students/model/student.types'
@@ -54,12 +54,14 @@ describe('StudentTable', () => {
   })
 })
 
-describe('StudentDeleteDialog', () => {
+describe('DeleteConfirmDialog', () => {
   it('shows target/cascade warning and does not confirm on cancel', async () => {
-    const wrapper = mount(StudentDeleteDialog, {
+    const wrapper = mount(DeleteConfirmDialog, {
       attachTo: document.body,
       props: {
-        student,
+        title: 'Delete student?',
+        message: `Are you sure you want to delete “${student.name}” (ID: ${student.id})?`,
+        warning: 'Related grade records may also be deleted. This action cannot be undone.',
         isDeleting: false,
         error: null,
       },
@@ -77,10 +79,21 @@ describe('StudentDeleteDialog', () => {
     wrapper.unmount()
   })
 
-  it('locks actions and announces an error', () => {
-    const wrapper = mount(StudentDeleteDialog, {
+  it('emits cancel for Escape when idle', async () => {
+    const wrapper = mount(DeleteConfirmDialog, {
+      props: { title: 'Delete?', message: 'Delete this item?' },
+    })
+
+    await wrapper.get('dialog').trigger('cancel')
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('locks actions and Escape, and announces an error', async () => {
+    const wrapper = mount(DeleteConfirmDialog, {
       props: {
-        student,
+        title: 'Delete student?',
+        message: `Delete ${student.name}?`,
         isDeleting: true,
         error: 'Unable to delete student. Please try again.',
       },
@@ -88,6 +101,9 @@ describe('StudentDeleteDialog', () => {
 
     expect(wrapper.findAll('button').every(button => button.attributes('disabled') !== undefined)).toBe(true)
     expect(wrapper.get('[role="alert"]').text()).toContain('Unable to delete student')
+    await wrapper.get('dialog').trigger('cancel')
+    expect(wrapper.emitted('cancel')).toBeUndefined()
+    expect(wrapper.emitted('confirm')).toBeUndefined()
     wrapper.unmount()
   })
 })

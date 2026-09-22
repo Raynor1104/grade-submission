@@ -10,3 +10,10 @@ export async function getCourses(
 
   return mapCourseList(response)
 }
+
+export function deleteCourse(
+  id: number,
+  signal?: AbortSignal,
+): Promise<void> {
+  return httpClient.delete(`/course/${encodeURIComponent(String(id))}`, signal)
+}

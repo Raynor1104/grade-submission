@@ -20,6 +20,7 @@ import {
 } from 'vue-router'
 
 import CoursesPage from '@/features/courses/pages/CoursesPage.vue'
+import { courseKeys, gradeKeys } from '@/core/api/query-keys'
 
 const courses = Array.from({ length: 11 }, (_, index) => ({
   id: index + 1,
@@ -152,5 +153,55 @@ describe('CoursesPage API mode', () => {
     await viewButton?.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/courses/1')
+  })
+
+  it('keeps the dialog open on delete failure, then removes the course and refreshes related caches', async () => {
+    let apiCourses = [...courses]
+    let deleteAttempts = 0
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = typeof input === 'string' ? input : input.toString()
+
+      if (path === '/api/course/all') return jsonResponse(apiCourses)
+      if (path === '/api/grade/all') return jsonResponse([])
+      if (path === '/api/course/1' && init?.method === 'DELETE') {
+        if (deleteAttempts++ === 0) return jsonResponse({ message: 'Failed' }, 500)
+        apiCourses = apiCourses.filter(course => course.id !== 1)
+        return new Response(null, { status: 204 })
+      }
+
+      return jsonResponse({ message: 'Not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { wrapper } = await mountPage()
+    await settleQueries()
+    queryClient?.setQueryData(gradeKeys.all(), [])
+    const gradeQuery = queryClient?.getQueryCache().find({ queryKey: gradeKeys.all() })
+
+    const trigger = wrapper.findAll('button').find(button => button.text() === 'Delete')
+    trigger?.element.focus()
+    await trigger?.trigger('click')
+    expect(wrapper.get('dialog').text()).toContain('Course 1')
+    expect(wrapper.get('dialog').text()).toContain('COURSE1')
+
+    await wrapper.get('dialog').findAll('button')[1]?.trigger('click')
+    await settleQueries()
+    expect(wrapper.get('dialog [role="alert"]').text()).toContain('Unable to delete course')
+    expect(wrapper.text()).toContain('Course 1')
+
+    await wrapper.get('dialog').findAll('button')[0]?.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(document.activeElement).toBe(trigger?.element)
+
+    await trigger?.trigger('click')
+    await wrapper.get('dialog').findAll('button')[1]?.trigger('click')
+    await settleQueries()
+
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.findAll('tbody tr').some(row => row.findAll('td')[1]?.text() === 'COURSE1')).toBe(false)
+    expect(queryClient?.getQueryData(courseKeys.all())).toEqual(apiCourses)
+    expect(gradeQuery?.state.isInvalidated).toBe(true)
+    expect(deleteAttempts).toBe(2)
   })
 })

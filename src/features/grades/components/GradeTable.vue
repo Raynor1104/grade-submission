@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Pencil } from '@lucide/vue'
+import { Pencil, Trash2 } from '@lucide/vue'
 
 import BaseButton from '@/shared/ui/BaseButton.vue'
 
@@ -11,6 +11,7 @@ defineProps<{
 
 const emit = defineEmits<{
   edit: [grade: GradeViewModel]
+  delete: [grade: GradeViewModel]
 }>()
 </script>
 
@@ -25,7 +26,7 @@ const emit = defineEmits<{
             <th class="w-38">Course Code</th>
             <th>Course Name</th>
             <th class="w-28">Grade</th>
-            <th class="w-34">Action</th>
+            <th class="w-54">Actions</th>
           </tr>
         </thead>
 
@@ -40,15 +41,25 @@ const emit = defineEmits<{
             <td>{{ grade.course.subject ?? '—' }}</td>
             <td>{{ grade.score }}</td>
             <td>
-              <BaseButton
-                size="sm"
-                variant="secondary"
-                class="grade-table__edit"
-                @click="emit('edit', grade)"
-              >
-                <Pencil :size="14" />
-                Edit
-              </BaseButton>
+              <div class="flex items-center gap-2">
+                <BaseButton
+                  size="sm"
+                  variant="secondary"
+                  class="grade-table__edit"
+                  @click="emit('edit', grade)"
+                >
+                  <Pencil :size="14" />
+                  Edit
+                </BaseButton>
+                <BaseButton
+                  size="sm"
+                  variant="danger"
+                  @click="emit('delete', grade)"
+                >
+                  <Trash2 :size="14" />
+                  Delete
+                </BaseButton>
+              </div>
             </td>
           </tr>
         </tbody>

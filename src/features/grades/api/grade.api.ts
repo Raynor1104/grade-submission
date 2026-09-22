@@ -10,3 +10,14 @@ export async function getGrades(
 
   return mapGradeList(response)
 }
+
+export function deleteGrade(
+  studentId: number,
+  courseId: number,
+  signal?: AbortSignal,
+): Promise<void> {
+  return httpClient.delete(
+    `/grade/student/${encodeURIComponent(String(studentId))}/course/${encodeURIComponent(String(courseId))}`,
+    signal,
+  )
+}

@@ -1,23 +1,28 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   ref,
   watch,
 } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRouter } from 'vue-router'
 
+import { courseKeys, gradeKeys } from '@/core/api/query-keys'
 import BaseButton from '@/shared/ui/BaseButton.vue'
 import BaseCard from '@/shared/ui/BaseCard.vue'
+import DeleteConfirmDialog from '@/shared/ui/DeleteConfirmDialog.vue'
 import PageHeader from '@/shared/ui/PageHeader.vue'
 import Pagination from '@/shared/ui/Pagination.vue'
 
+import { deleteCourse } from '../api/course.api'
 import { courseQueries } from '../api/course.queries'
 import CourseTable from '../components/CourseTable.vue'
 import CourseToolbar from '../components/CourseToolbar.vue'
 import type { CourseViewModel } from '../model/course.types'
 
 const router = useRouter()
+const queryClient = useQueryClient()
 
 const {
   data: courseData,
@@ -29,6 +34,26 @@ const {
 const courses = computed(() => courseData.value ?? [])
 const search = ref('')
 const page = ref(1)
+const deleteTarget = ref<CourseViewModel | null>(null)
+const deleteTrigger = ref<HTMLElement | null>(null)
+const deleteError = ref<string | null>(null)
+
+const {
+  isPending: isDeleting,
+  mutateAsync: removeCourse,
+  reset: resetDeleteMutation,
+} = useMutation({
+  mutationFn: (id: number) => deleteCourse(id),
+  onSuccess: (_data, id) => {
+    queryClient.setQueryData<CourseViewModel[]>(
+      courseKeys.all(),
+      currentCourses => currentCourses?.filter(course => course.id !== id) ?? [],
+    )
+    queryClient.removeQueries({ queryKey: courseKeys.detail(id), exact: true })
+    void queryClient.invalidateQueries({ queryKey: courseKeys.root })
+    void queryClient.invalidateQueries({ queryKey: gradeKeys.root })
+  },
+})
 
 const pageSize = 10
 
@@ -87,6 +112,40 @@ function handleCreate() {
 function handleView(course: CourseViewModel) {
   router.push(`/courses/${course.id}`)
 }
+
+function handleDelete(course: CourseViewModel): void {
+  deleteTrigger.value = document.activeElement instanceof HTMLElement
+    ? document.activeElement
+    : null
+  deleteError.value = null
+  resetDeleteMutation()
+  deleteTarget.value = course
+}
+
+function closeDeleteDialog(): void {
+  if (isDeleting.value) return
+
+  const trigger = deleteTrigger.value
+  deleteTarget.value = null
+  deleteTrigger.value = null
+  deleteError.value = null
+  resetDeleteMutation()
+
+  void nextTick(() => trigger?.focus())
+}
+
+async function handleConfirmDelete(): Promise<void> {
+  if (!deleteTarget.value || isDeleting.value) return
+
+  deleteError.value = null
+
+  try {
+    await removeCourse(deleteTarget.value.id)
+    closeDeleteDialog()
+  } catch {
+    deleteError.value = 'Unable to delete course. Please try again.'
+  }
+}
 </script>
 
 <template>
@@ -137,6 +196,7 @@ function handleView(course: CourseViewModel) {
         v-else-if="paginatedCourses.length"
         :courses="paginatedCourses"
         @view="handleView"
+        @delete="handleDelete"
       />
 
       <div
@@ -155,6 +215,17 @@ function handleView(course: CourseViewModel) {
         aria-label="Course list pagination"
       />
     </BaseCard>
+
+    <DeleteConfirmDialog
+      v-if="deleteTarget"
+      title="Delete course?"
+      :message="`Are you sure you want to delete “${deleteTarget.subject}” (${deleteTarget.code})?`"
+      warning="Related grade records may also be deleted. This action cannot be undone."
+      :is-deleting="isDeleting"
+      :error="deleteError"
+      @cancel="closeDeleteDialog"
+      @confirm="handleConfirmDelete"
+    />
   </section>
 </template>
 

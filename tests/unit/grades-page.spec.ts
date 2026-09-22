@@ -16,6 +16,7 @@ import {
 } from '@tanstack/vue-query'
 
 import GradesPage from '@/features/grades/pages/GradesPage.vue'
+import { gradeKeys } from '@/core/api/query-keys'
 
 const students = [
   { id: 1, name: 'Student One', birthDate: '2000-01-01' },
@@ -161,5 +162,52 @@ describe('GradesPage API mode', () => {
 
     expect(wrapper.text()).toContain('Showing 1–6 of 7 grades')
     expect(fetchMock).toHaveBeenCalledTimes(4)
+  })
+
+  it('deletes by student/course pair and retains the dialog after an API error', async () => {
+    let apiGrades = [...grades]
+    let deleteAttempts = 0
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = getPath(input)
+
+      if (path === '/api/grade/all') return jsonResponse(apiGrades)
+      if (path === '/api/student/all') return jsonResponse(students)
+      if (path === '/api/course/all') return jsonResponse(courses)
+      if (path === '/api/grade/student/1/course/10' && init?.method === 'DELETE') {
+        if (deleteAttempts++ === 0) return jsonResponse({ message: 'Failed' }, 500)
+        apiGrades = apiGrades.filter(grade => (
+          grade.student.id !== 1 || grade.course.id !== 10
+        ))
+        return new Response(null, { status: 204 })
+      }
+
+      return jsonResponse({ message: 'Not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const wrapper = mountPage()
+    await settleQueries()
+
+    const trigger = wrapper.findAll('button').find(button => button.text() === 'Delete')
+    trigger?.element.focus()
+    await trigger?.trigger('click')
+    expect(wrapper.get('dialog').text()).toContain('Student One in JAVA101')
+
+    await wrapper.get('dialog').findAll('button')[0]?.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(document.activeElement).toBe(trigger?.element)
+
+    await trigger?.trigger('click')
+    await wrapper.get('dialog').findAll('button')[1]?.trigger('click')
+    await settleQueries()
+    expect(wrapper.get('dialog [role="alert"]').text()).toContain('Unable to delete grade')
+
+    await wrapper.get('dialog').findAll('button')[1]?.trigger('click')
+    await settleQueries()
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.find('tbody').text()).not.toContain('Student One')
+    expect(queryClient?.getQueryData(gradeKeys.all())).toEqual(apiGrades)
+    expect(deleteAttempts).toBe(2)
   })
 })

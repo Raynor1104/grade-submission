@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   ref,
   watch,
 } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
+import { gradeKeys } from '@/core/api/query-keys'
 import { courseQueries } from '@/features/courses/api/course.queries'
 import { studentQueries } from '@/features/students/api/student.queries'
 import BaseButton from '@/shared/ui/BaseButton.vue'
 import BaseCard from '@/shared/ui/BaseCard.vue'
+import DeleteConfirmDialog from '@/shared/ui/DeleteConfirmDialog.vue'
 import PageHeader from '@/shared/ui/PageHeader.vue'
 import Pagination from '@/shared/ui/Pagination.vue'
 
+import { deleteGrade } from '../api/grade.api'
 import { gradeQueries } from '../api/grade.queries'
 import GradeTable from '../components/GradeTable.vue'
 import GradeToolbar from '../components/GradeToolbar.vue'
@@ -22,6 +26,8 @@ import type {
   GradeStudent,
   GradeViewModel,
 } from '../model/grade.types'
+
+const queryClient = useQueryClient()
 
 const {
   data: gradeData,
@@ -50,6 +56,26 @@ const selectedCourseId = ref<number | null>(null)
 const appliedStudentId = ref<number | null>(null)
 const appliedCourseId = ref<number | null>(null)
 const page = ref(1)
+const deleteTarget = ref<GradeViewModel | null>(null)
+const deleteTrigger = ref<HTMLElement | null>(null)
+const deleteError = ref<string | null>(null)
+
+const {
+  isPending: isDeleting,
+  mutateAsync: removeGrade,
+  reset: resetDeleteMutation,
+} = useMutation({
+  mutationFn: (grade: GradeViewModel) => deleteGrade(grade.student.id, grade.course.id),
+  onSuccess: (_data, grade) => {
+    queryClient.setQueryData<GradeViewModel[]>(
+      gradeKeys.all(),
+      currentGrades => currentGrades?.filter(item => (
+        item.student.id !== grade.student.id || item.course.id !== grade.course.id
+      )) ?? [],
+    )
+    void queryClient.invalidateQueries({ queryKey: gradeKeys.root })
+  },
+})
 
 const pageSize = 6
 
@@ -129,6 +155,40 @@ function handleCreate() {
 function handleEdit(grade: GradeViewModel) {
   console.log('Edit grade:', grade)
 }
+
+function handleDelete(grade: GradeViewModel): void {
+  deleteTrigger.value = document.activeElement instanceof HTMLElement
+    ? document.activeElement
+    : null
+  deleteError.value = null
+  resetDeleteMutation()
+  deleteTarget.value = grade
+}
+
+function closeDeleteDialog(): void {
+  if (isDeleting.value) return
+
+  const trigger = deleteTrigger.value
+  deleteTarget.value = null
+  deleteTrigger.value = null
+  deleteError.value = null
+  resetDeleteMutation()
+
+  void nextTick(() => trigger?.focus())
+}
+
+async function handleConfirmDelete(): Promise<void> {
+  if (!deleteTarget.value || isDeleting.value) return
+
+  deleteError.value = null
+
+  try {
+    await removeGrade(deleteTarget.value)
+    closeDeleteDialog()
+  } catch {
+    deleteError.value = 'Unable to delete grade. Please try again.'
+  }
+}
 </script>
 
 <template>
@@ -183,6 +243,7 @@ function handleEdit(grade: GradeViewModel) {
         v-else-if="paginatedGrades.length"
         :grades="paginatedGrades"
         @edit="handleEdit"
+        @delete="handleDelete"
       />
 
       <div
@@ -201,6 +262,16 @@ function handleEdit(grade: GradeViewModel) {
         aria-label="Grade list pagination"
       />
     </BaseCard>
+
+    <DeleteConfirmDialog
+      v-if="deleteTarget"
+      title="Delete grade?"
+      :message="`Are you sure you want to delete the grade for ${deleteTarget.student.name} in ${deleteTarget.course.code}?`"
+      :is-deleting="isDeleting"
+      :error="deleteError"
+      @cancel="closeDeleteDialog"
+      @confirm="handleConfirmDelete"
+    />
   </section>
 </template>
 

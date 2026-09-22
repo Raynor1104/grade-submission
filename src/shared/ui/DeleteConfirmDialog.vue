@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import {
-  onBeforeUnmount,
-  onMounted,
-  ref,
-} from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { TriangleAlert } from '@lucide/vue'
 
-import BaseButton from '@/shared/ui/BaseButton.vue'
+import BaseButton from './BaseButton.vue'
 
-import type { StudentViewModel } from '../model/student.types'
-
-const props = defineProps<{
-  student: StudentViewModel
-  isDeleting: boolean
-  error: string | null
-}>()
+const props = withDefaults(defineProps<{
+  title: string
+  message: string
+  warning?: string
+  isDeleting?: boolean
+  error?: string | null
+}>(), {
+  warning: 'This action cannot be undone.',
+  isDeleting: false,
+  error: null,
+})
 
 const emit = defineEmits<{
   cancel: []
@@ -26,6 +26,12 @@ const dialog = ref<HTMLDialogElement | null>(null)
 function handleCancel(): void {
   if (!props.isDeleting) {
     emit('cancel')
+  }
+}
+
+function handleConfirm(): void {
+  if (!props.isDeleting) {
+    emit('confirm')
   }
 }
 
@@ -43,40 +49,29 @@ onBeforeUnmount(() => {
 <template>
   <dialog
     ref="dialog"
-    class="student-delete-dialog"
-    aria-labelledby="student-delete-title"
-    aria-describedby="student-delete-description"
+    class="delete-confirm-dialog"
+    aria-labelledby="delete-confirm-title"
+    aria-describedby="delete-confirm-description"
     @cancel.prevent="handleCancel"
   >
-    <div class="student-delete-dialog__icon" aria-hidden="true">
+    <div class="delete-confirm-dialog__icon" aria-hidden="true">
       <TriangleAlert :size="24" />
     </div>
 
-    <h2 id="student-delete-title" class="student-delete-dialog__title">
-      Delete student?
+    <h2 id="delete-confirm-title" class="delete-confirm-dialog__title">
+      {{ title }}
     </h2>
 
-    <div id="student-delete-description" class="student-delete-dialog__content">
-      <p>
-        Are you sure you want to delete
-        <strong>“{{ student.name }}”</strong>
-        (ID: {{ student.id }})?
-      </p>
-
-      <p class="student-delete-dialog__warning">
-        Related grade records may also be deleted. This action cannot be undone.
-      </p>
+    <div id="delete-confirm-description" class="delete-confirm-dialog__content">
+      <p>{{ message }}</p>
+      <p class="delete-confirm-dialog__warning">{{ warning }}</p>
     </div>
 
-    <p
-      v-if="error"
-      class="student-delete-dialog__error"
-      role="alert"
-    >
+    <p v-if="error" class="delete-confirm-dialog__error" role="alert">
       {{ error }}
     </p>
 
-    <div class="student-delete-dialog__actions">
+    <div class="delete-confirm-dialog__actions">
       <BaseButton
         autofocus
         variant="secondary"
@@ -89,7 +84,7 @@ onBeforeUnmount(() => {
       <BaseButton
         variant="danger"
         :loading="isDeleting"
-        @click="emit('confirm')"
+        @click="handleConfirm"
       >
         Delete
       </BaseButton>
@@ -98,7 +93,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
-.student-delete-dialog {
+.delete-confirm-dialog {
   width: min(32rem, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
   margin: auto;
@@ -166,7 +161,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 480px) {
-  .student-delete-dialog__actions {
+  .delete-confirm-dialog__actions {
     align-items: stretch;
     flex-direction: column-reverse;
   }
