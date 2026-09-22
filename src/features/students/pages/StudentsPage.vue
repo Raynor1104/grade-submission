@@ -6,14 +6,26 @@ import {
   watch,
 } from 'vue'
 import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/vue-query'
+import {
   useRoute,
   useRouter,
 } from 'vue-router'
 
+import {
+  gradeKeys,
+  studentKeys,
+} from '@/core/api/query-keys'
+import BaseButton from '@/shared/ui/BaseButton.vue'
 import BaseCard from '@/shared/ui/BaseCard.vue'
 import PageHeader from '@/shared/ui/PageHeader.vue'
 import Pagination from '@/shared/ui/Pagination.vue'
 
+import { deleteStudent } from '../api/student.api'
+import { studentQueries } from '../api/student.queries'
 import StudentDeleteDialog from '../components/StudentDeleteDialog.vue'
 import StudentTable from '../components/StudentTable.vue'
 import StudentToolbar from '../components/StudentToolbar.vue'
@@ -26,18 +38,47 @@ import {
   parseStudentPage,
   STUDENT_PAGE_SIZE,
 } from '../model/student-list'
-import { mockStudents } from '../model/student.mock'
 import type { StudentViewModel } from '../model/student.types'
 
 const route = useRoute()
 const router = useRouter()
+const queryClient = useQueryClient()
 
-const students = ref<StudentViewModel[]>([...mockStudents])
+const {
+  data: studentData,
+  isPending: studentsPending,
+  isError: studentsError,
+  refetch: refetchStudents,
+} = useQuery(studentQueries.all())
+
+const students = computed(() => studentData.value ?? [])
 const search = ref('')
 const page = ref(1)
 const deleteTarget = ref<StudentViewModel | null>(null)
 const deleteTrigger = ref<HTMLElement | null>(null)
-const isDeleting = ref(false)
+const deleteError = ref<string | null>(null)
+
+const {
+  isPending: isDeleting,
+  mutateAsync: removeStudent,
+  reset: resetDeleteMutation,
+} = useMutation({
+  mutationFn: (id: number) => deleteStudent(id),
+  onSuccess: (_data, id) => {
+    queryClient.setQueryData<StudentViewModel[]>(
+      studentKeys.all(),
+      currentStudents => (
+        currentStudents?.filter(student => student.id !== id) ?? []
+      ),
+    )
+    queryClient.removeQueries({
+      queryKey: studentKeys.detail(id),
+      exact: true,
+    })
+    void queryClient.invalidateQueries({ queryKey: studentKeys.root })
+    void queryClient.invalidateQueries({ queryKey: gradeKeys.root })
+  },
+})
 
 function getQueryText(value: unknown): string {
   const queryValue = Array.isArray(value) ? value[0] : value
@@ -115,8 +156,12 @@ const paginatedStudents = computed(() => {
 })
 
 watch(
-  totalPages,
+  [totalPages, studentsPending, studentsError],
   () => {
+    if (studentsPending.value || studentsError.value) {
+      return
+    }
+
     const clampedPage = clampPage(page.value, totalPages.value)
     const canonicalSearch = search.value.trim()
     const currentQuerySearch = getQueryText(route.query.q)
@@ -163,6 +208,8 @@ function handleDelete(student: StudentViewModel): void {
   deleteTrigger.value = document.activeElement instanceof HTMLElement
     ? document.activeElement
     : null
+  deleteError.value = null
+  resetDeleteMutation()
   deleteTarget.value = student
 }
 
@@ -171,7 +218,8 @@ function closeDeleteDialog(): void {
 
   deleteTarget.value = null
   deleteTrigger.value = null
-  isDeleting.value = false
+  deleteError.value = null
+  resetDeleteMutation()
 
   void nextTick(() => {
     trigger?.focus()
@@ -183,16 +231,14 @@ async function handleConfirmDelete(): Promise<void> {
     return
   }
 
-  isDeleting.value = true
-  const deletedStudentId = deleteTarget.value.id
+  deleteError.value = null
 
-  await nextTick()
-
-  students.value = students.value.filter(student => {
-    return student.id !== deletedStudentId
-  })
-
-  closeDeleteDialog()
+  try {
+    await removeStudent(deleteTarget.value.id)
+    closeDeleteDialog()
+  } catch {
+    deleteError.value = 'Unable to delete student. Please try again.'
+  }
 }
 </script>
 
@@ -211,7 +257,31 @@ async function handleConfirmDelete(): Promise<void> {
       />
 
       <div
-        v-if="students.length === 0"
+        v-if="studentsError"
+        class="student-state student-state--stacked"
+        role="alert"
+      >
+        <span>Unable to load students. Please try again.</span>
+        <BaseButton
+          variant="secondary"
+          size="sm"
+          @click="refetchStudents()"
+        >
+          Retry
+        </BaseButton>
+      </div>
+
+      <div
+        v-else-if="studentsPending"
+        class="student-state"
+        role="status"
+        aria-live="polite"
+      >
+        Loading students...
+      </div>
+
+      <div
+        v-else-if="students.length === 0"
         class="student-state"
       >
         No students yet.
@@ -252,7 +322,7 @@ async function handleConfirmDelete(): Promise<void> {
       v-if="deleteTarget"
       :student="deleteTarget"
       :is-deleting="isDeleting"
-      :error="null"
+      :error="deleteError"
       @cancel="closeDeleteDialog"
       @confirm="handleConfirmDelete"
     />
@@ -269,6 +339,11 @@ async function handleConfirmDelete(): Promise<void> {
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   text-align: center;
+
+  &--stacked {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }
 
 .student-edit-note {
