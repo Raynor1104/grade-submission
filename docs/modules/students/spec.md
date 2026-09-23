@@ -1,8 +1,8 @@
 # Students — Đặc tả frontend
 
 **Phụ trách:** Frontend team  
-**Trạng thái:** Partial — create/read/delete supported  
-**Cập nhật lần cuối:** 2026-07-22
+**Trạng thái:** Create/read/update/delete supported; Student Detail UI còn placeholder
+**Cập nhật lần cuối:** 2026-09-22
 
 ## 1. Phạm vi
 
@@ -13,7 +13,7 @@
 - Student Detail.
 - Enrolled Courses & Grades trong detail.
 - Delete Student với confirmation.
-- Edit Student chỉ là wireframe/backlog vì backend chưa có update endpoint.
+- Edit Student qua shared form và `PUT /student/{id}`.
 
 ## 2. Data model
 
@@ -34,10 +34,11 @@ Canonical field là `birthDate`. Wireframe mới dùng Birth Date nhất quán �
 | GET | `/student/all` | List, selector, dashboard count |
 | GET | `/student/{id}` | Student Detail |
 | POST | `/student` | Add Student |
+| PUT | `/student/{id}` | Edit Student |
 | DELETE | `/student/{id}` | Delete Student |
 | GET | `/grade/student/{studentId}` | Enrolled Courses & Grades |
 
-Không có `PUT/PATCH /student/{id}`.
+Backend local `/v3/api-docs` ngày 2026-09-22 xác nhận `PUT /student/{id}` nhận `{name,birthDate}` và trả Student với HTTP 200. `POST /student` cũng trả HTTP 200 theo OpenAPI hiện tại.
 
 Create body:
 
@@ -67,7 +68,7 @@ Create body:
 
 - View: supported.
 - Delete: supported.
-- Edit: hidden/disabled với tooltip “Backend hiện chưa hỗ trợ cập nhật sinh viên”.
+- Edit: điều hướng `/students/:id/edit`; preload Student rồi gửi PUT khi form thay đổi.
 
 ## 5. Add Student
 
@@ -105,11 +106,11 @@ Nếu student tồn tại nhưng chưa có grade, hiển thị empty state.
 | --- | --- | --- |
 | AC-STUDENT-FE-01 | List hiển thị ID, Name, Birth Date | ready |
 | AC-STUDENT-FE-02 | Search ID/name và pagination chạy trên filtered array | ready |
-| AC-STUDENT-FE-03 | Create gửi name + ISO birthDate và xử lý 201 | ready |
+| AC-STUDENT-FE-03 | Create gửi name + ISO birthDate và xử lý 200 | ready |
 | AC-STUDENT-FE-04 | Detail hiển thị student và grades theo student | ready |
 | AC-STUDENT-FE-05 | Grade trong detail giữ nguyên string | ready |
 | AC-STUDENT-FE-06 | Delete yêu cầu confirmation và xử lý 204 | ready |
-| AC-STUDENT-FE-07 | Edit không phát request unsupported | ready |
+| AC-STUDENT-FE-07 | Edit chỉ gửi PUT chính thức khi dữ liệu thay đổi | ready |
 | AC-STUDENT-FE-08 | GET unknown student hiển thị 404 state | ready |
-| AC-STUDENT-FE-09 | Server-side update Student | blocked |
+| AC-STUDENT-FE-09 | Server-side update Student | ready |
 | AC-STUDENT-FE-10 | Server-side search/pagination | backlog |

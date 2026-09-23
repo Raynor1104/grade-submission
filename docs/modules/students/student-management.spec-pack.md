@@ -1,5 +1,7 @@
 # Student Management — Spec Pack
 
+> Ghi chú 2026-09-22: Các đoạn đánh dấu Edit unavailable bên dưới là snapshot của giai đoạn cũ. Backend local hiện công bố `PUT /student/{id}`; Edit đã được triển khai theo `student-form.spec-pack.md` và `student-form.implementation-plan.md`.
+
 **Phụ trách:** Frontend team  
 **Trạng thái:** Ready for implementation — current screen is placeholder  
 **Cập nhật lần cuối:** 2026-09-08
@@ -1080,4 +1082,3 @@ Các điểm sau không được tự ý thay đổi business contract; nếu im
 3. Success notification sau delete dùng toast/global notification hay silent refresh, tùy UI infrastructure được bổ sung.
 4. Backend behavior chính xác khi delete ID không tồn tại chưa được coi là contract ổn định; frontend phải dùng generic normalized error cho tới khi backend harden.
 5. Nếu backend CORS chưa được cấu hình tập trung, local integration cần dùng dev-server proxy/reverse proxy theo `docs/architecture/api_integration.md`.
-

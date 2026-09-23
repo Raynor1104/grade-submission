@@ -48,6 +48,7 @@ async function mountPage(initialPath = '/students') {
     routes: [
       { path: '/students', component: StudentsPage },
       { path: '/students/new', component: { template: '<div>Add page</div>' } },
+      { path: '/students/:id/edit', component: { template: '<div>Edit page</div>' } },
       { path: '/students/:id', component: { template: '<div>Detail page</div>' } },
     ],
   })
@@ -91,6 +92,20 @@ afterEach(() => {
 })
 
 describe('StudentsPage API mode', () => {
+  it('opens Edit for the selected student without writing yet', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(mockStudents))
+    vi.stubGlobal('fetch', fetchMock)
+    const { wrapper, router } = await mountPage()
+    await settleQueries()
+
+    const editButton = wrapper.findAll('button').find(button => button.text() === 'Edit')
+    await editButton?.trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.path).toBe('/students/1/edit')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
   it('loads students from the API and filters without another request', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(mockStudents))
     vi.stubGlobal('fetch', fetchMock)

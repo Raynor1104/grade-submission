@@ -11,7 +11,7 @@
 2. Mở Students List.
 3. Nhấn **Add Student**.
 4. Nhập Full Name duy nhất và Birth Date hợp lệ.
-5. Submit và chờ `POST /student` trả `201`.
+5. Submit và chờ `POST /student` trả `200` theo OpenAPI local hiện tại.
 6. Mở Student Detail của record mới.
 7. Kiểm tra ID, Name và Birth Date.
 8. Quay list, tìm record.
@@ -138,10 +138,12 @@ Kiểm tra:
 
 ---
 
-## E2E-STUDENT-019 — Edit Student bị blocked
+## E2E-STUDENT-019 — Edit Student
 
-**Loại:** Blocked  
+**Loại:** Happy path + failure
 **AC:** `AC-STUDENT-FE-07`, `AC-STUDENT-FE-09`
 
-- Edit hidden/disabled.
-- Không có E2E happy path update cho tới khi backend thêm endpoint.
+1. Mở Edit từ một Student có sẵn; chờ GET `/student/{id}` và kiểm tra ID chỉ hiển thị, name/birthDate được điền sẵn.
+2. Đổi name hoặc birthDate, submit; kiểm tra đúng một `PUT /student/{id}` với `{name,birthDate}` và HTTP 200.
+3. Trở về list và kiểm tra dữ liệu mới; Cancel từ Edit không gọi PUT.
+4. Kiểm tra 404, lỗi GET + Retry, lỗi PUT giữ draft và double submit không tạo request thứ hai.

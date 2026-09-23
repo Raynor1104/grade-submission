@@ -7,7 +7,7 @@
 | 1. Login | `auth.md` |
 | 2. Main layout / Dashboard | `access_control.md`, `dashboard.md` |
 | 3. Student Management | `students.md` |
-| 4. Add/Edit Student | Create trong `students.md`; Edit blocked |
+| 4. Add/Edit Student | Create và Edit trong `students.md` |
 | 5. Course Management | `courses.md` |
 | 6. Add/Edit Course | Create trong `courses.md`; Edit blocked |
 | 7. Grade Management | `grades.md` |
@@ -35,7 +35,7 @@
 | --- | --- |
 | Auth | `POST /authenticate` |
 | Dashboard | `GET /student/all`, `/course/all`, `/grade/all` |
-| Students | `GET/POST/DELETE /student/**`, `GET /grade/student/{id}` |
+| Students | `GET/POST/PUT/DELETE /student/**`, `GET /grade/student/{id}` |
 | Courses | `GET/POST/DELETE /course/**`, `GET /grade/course/{id}` |
 | Grades | `GET/POST/PUT/DELETE /grade/**` |
 | 401 | Mọi protected endpoint không có/invalid Bearer |
@@ -45,7 +45,6 @@
 
 | UI capability | Lý do |
 | --- | --- |
-| Edit Student | Không có `PUT/PATCH /student/{id}` |
 | Edit Course | Không có `PUT/PATCH /course/{id}` |
 | Recent Activities | Không có activity/audit endpoint hoặc timestamp |
 | Role-based UI | Backend chỉ dùng `authenticated()` |

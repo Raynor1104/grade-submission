@@ -11,11 +11,12 @@ const props = withDefaults(
     label?: string
     ariaLabel?: string
     placeholder?: string
-    type?: 'text' | 'password' | 'email'
+    type?: 'text' | 'password' | 'email' | 'date'
     disabled?: boolean
     required?: boolean
     error?: string
     helper?: string
+    max?: string
   }>(),
   {
     modelValue: '',
@@ -31,6 +32,7 @@ const messageId = computed(() => `${inputId.value}-message`)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  blur: []
 }>()
 
 function handleInput(event: Event) {
@@ -66,11 +68,14 @@ function handleInput(event: Event) {
       :aria-invalid="error ? 'true' : undefined"
       :placeholder="placeholder"
       :disabled="disabled"
+      :required="required"
+      :max="max"
       class="base-input__control"
       :class="{
         'base-input__control--error': error,
       }"
       @input="handleInput"
+      @blur="emit('blur')"
     />
 
     <p

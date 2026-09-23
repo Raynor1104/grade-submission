@@ -96,7 +96,7 @@ Missing/invalid fields trả 400 với field errors.
 
 ## Product gaps
 
-- Update Student/Course endpoints.
+- Update Course endpoint; Student đã có `PUT /student/{id}` theo OpenAPI local ngày 2026-09-22.
 - Recent Activities API.
 - RBAC.
 - Server-side pagination/search.

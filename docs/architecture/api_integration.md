@@ -44,6 +44,7 @@ JWT hết hạn sau 24 giờ. Backend không có refresh token, revoke hoặc lo
 | GET | `/student/all` | List, dashboard count, selectors |
 | GET | `/student/{id}` | Student detail |
 | POST | `/student` | Add Student |
+| PUT | `/student/{id}` | Update Student |
 | DELETE | `/student/{id}` | Delete Student |
 
 Create payload:
@@ -55,7 +56,7 @@ Create payload:
 }
 ```
 
-Không có PUT/PATCH Student.
+Update nhận cùng hai field `name` và `birthDate` (date-only), trả Student với HTTP 200. Contract được xác nhận qua `/v3/api-docs` của backend local ngày 2026-09-22.
 
 ## 3. Course endpoints
 

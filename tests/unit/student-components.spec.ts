@@ -43,13 +43,14 @@ describe('StudentTable', () => {
     expect(headers).toEqual(['ID', 'Student Name', 'Birth Date', 'Actions'])
     expect(wrapper.text()).toContain('1980/07/31')
     expect(buttons.map(button => button.text())).toEqual(['View', 'Edit', 'Delete'])
-    expect(buttons[1]?.attributes('disabled')).toBeDefined()
-    expect(buttons[1]?.attributes('title')).toBe('Edit is currently unavailable')
+    expect(buttons[1]?.attributes('disabled')).toBeUndefined()
 
     await buttons[0]?.trigger('click')
+    await buttons[1]?.trigger('click')
     await buttons[2]?.trigger('click')
 
     expect(wrapper.emitted('view')?.[0]).toEqual([student])
+    expect(wrapper.emitted('edit')?.[0]).toEqual([student])
     expect(wrapper.emitted('delete')?.[0]).toEqual([student])
   })
 })

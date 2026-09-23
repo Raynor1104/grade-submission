@@ -31,12 +31,13 @@ GET /swagger-ui/index.html
 GET /student/all
 GET /student/{id}
 POST /student
+PUT /student/{id}
 DELETE /student/{id}
 ```
 
 Fields: `id`, `name`, `birthDate`.
 
-Không có update endpoint.
+`PUT /student/{id}` nhận `{name,birthDate}` và trả Student/HTTP 200 theo OpenAPI local ngày 2026-09-22.
 
 ## Course
 

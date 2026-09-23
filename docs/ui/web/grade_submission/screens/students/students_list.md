@@ -1,5 +1,7 @@
 # Student Management — List
 
+> Cập nhật 2026-09-22: Edit đã được bật và điều hướng tới `/students/:id/edit`; dòng "Edit is currently unavailable" trong wireframe bên dưới là trạng thái cũ.
+
 **Phụ trách:** Frontend team  
 **Trạng thái:** Backend-aligned + wireframe-aligned  
 **Cập nhật lần cuối:** 2026-07-22

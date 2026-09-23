@@ -14,7 +14,7 @@
 | WF-03 Edit | Không có | Gap | Ẩn/disable |
 | WF-03 Delete | `DELETE /student/{id}` | Supported | Confirm + cascade warning |
 | WF-04 Add Student | `POST /student` | Supported | `{name,birthDate}` |
-| WF-04 Edit Student | Không có | Gap | Không giả lập |
+| WF-04 Edit Student | `PUT /student/{id}` | Supported | Shared form + edit route |
 | WF-05 Course list | `GET /course/all` | Supported | Search/page client-side |
 | WF-05 View | `GET /course/{id}` | Supported | Detail route |
 | WF-05 Edit | Không có | Gap | Ẩn/disable |

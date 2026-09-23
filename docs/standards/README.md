@@ -37,7 +37,7 @@ Không được mô tả một chuẩn **Target/Backlog** như thể backend đ�
 - Grade là chuỗi; `A` và `8.5` đều là string hợp lệ theo contract hiện tại.
 - `Course Name` trên UI ánh xạ vào field backend `subject`.
 - Search và pagination của MVP thực hiện phía client.
-- `Edit Student` và `Edit Course` phải ẩn/disable cho đến khi backend có update endpoint.
+- `Edit Student` dùng `PUT /student/{id}` đã xác nhận; `Edit Course` tiếp tục ẩn/disable cho đến khi backend có update endpoint.
 - Dashboard counts được tổng hợp từ ba endpoint `/all`.
 - `Recent Activities` là placeholder/backlog vì backend chưa có activity API.
 

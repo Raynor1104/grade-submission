@@ -44,6 +44,12 @@ export const routes: RouteRecordRaw[] = [
           import('@/features/students/pages/StudentCreatePage.vue'),
       },
       {
+        path: 'students/:id/edit',
+        name: 'student-edit',
+        component: () =>
+          import('@/features/students/pages/StudentEditPage.vue'),
+      },
+      {
         path: 'students/:id',
         name: 'student-detail',
         component: () =>

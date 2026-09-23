@@ -67,7 +67,7 @@ Authorization: Bearer <jwt>
 
 ## Current implementation rule
 
-Create screen title nên là `ADD STUDENT`; nếu giữ template `ADD / EDIT`, Edit state phải hiển thị unavailable notice, không submit.
+Create dùng title `Add Student`; Edit dùng `Edit Student` và cùng form. Edit preload từ `GET /student/{id}` rồi submit qua `PUT /student/{id}` sau khi validation pass.
 
 ## Validation
 

@@ -1,5 +1,7 @@
 # Student Management — Implementation Plan
 
+> Ghi chú 2026-09-22: Những đoạn Edit disabled và mock-data override bên dưới là lịch sử của đợt triển khai trước. Source hiện dùng Student API query; Edit được triển khai theo `student-form.implementation-plan.md`.
+
 **Phụ trách:** Frontend team  
 **Trạng thái:** Implemented — mock-data override áp dụng ngày 2026-09-09  
 **Cập nhật lần cuối:** 2026-09-09

@@ -204,6 +204,10 @@ function handleView(student: StudentViewModel): void {
   void router.push(`/students/${student.id}`)
 }
 
+function handleEdit(student: StudentViewModel): void {
+  void router.push(`/students/${student.id}/edit`)
+}
+
 function handleDelete(student: StudentViewModel): void {
   deleteTrigger.value = document.activeElement instanceof HTMLElement
     ? document.activeElement
@@ -298,6 +302,7 @@ async function handleConfirmDelete(): Promise<void> {
         v-else
         :students="paginatedStudents"
         @view="handleView"
+        @edit="handleEdit"
         @delete="handleDelete"
       />
 
@@ -309,13 +314,7 @@ async function handleConfirmDelete(): Promise<void> {
         item-label="students"
         aria-label="Student list pagination"
         @update:page="handlePageUpdate"
-      >
-        <template #note>
-          <span class="student-edit-note">
-            Edit is currently unavailable.
-          </span>
-        </template>
-      </Pagination>
+      />
     </BaseCard>
 
     <DeleteConfirmDialog
@@ -348,9 +347,4 @@ async function handleConfirmDelete(): Promise<void> {
   }
 }
 
-.student-edit-note {
-  display: inline-flex;
-  align-items: center;
-  text-align: center;
-}
 </style>

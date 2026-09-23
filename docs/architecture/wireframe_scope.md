@@ -37,4 +37,4 @@
 /unauthorized
 ```
 
-Route edit Student/Course không được kích hoạt trong MVP vì backend chưa có update endpoint.
+Route Edit Student đã được kích hoạt sau khi backend local công bố `PUT /student/{id}`; Edit Course vẫn chờ update endpoint.

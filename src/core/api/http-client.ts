@@ -132,4 +132,11 @@ export const httpClient = {
       auth: options.auth,
     })
   },
+  put<T>(path: string, body: unknown, signal?: AbortSignal) {
+    return request<T>(path, {
+      method: 'PUT',
+      body,
+      signal,
+    })
+  },
 }
