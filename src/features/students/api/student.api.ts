@@ -1,8 +1,13 @@
 import { httpClient } from '@/core/api/http-client'
 
-import { mapStudentDto, mapStudentList } from '../model/student.mapper'
+import {
+  mapStudentDto,
+  mapStudentGradeACountList,
+  mapStudentList,
+} from '../model/student.mapper'
 import type {
   CreateStudentInput,
+  StudentGradeACountViewModel,
   StudentViewModel,
   UpdateStudentInput,
 } from '../model/student.types'
@@ -21,6 +26,17 @@ export async function getStudent(
 ): Promise<StudentViewModel> {
   const response = await httpClient.get<unknown>(`/student/${id}`, signal)
   return mapStudentDto(response)
+}
+
+export async function getStudentGradeACounts(
+  signal?: AbortSignal,
+): Promise<StudentGradeACountViewModel[]> {
+  const response = await httpClient.get<unknown>(
+    '/api/v1/students/grade-a-counts',
+    signal,
+  )
+
+  return mapStudentGradeACountList(response)
 }
 
 export function createStudent(input: CreateStudentInput): Promise<unknown> {

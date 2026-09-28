@@ -113,6 +113,10 @@ function handleView(course: CourseViewModel) {
   router.push(`/courses/${course.id}`)
 }
 
+function handleEdit(course: CourseViewModel) {
+  router.push(`/courses/${course.id}/edit`)
+}
+
 function handleDelete(course: CourseViewModel): void {
   deleteTrigger.value = document.activeElement instanceof HTMLElement
     ? document.activeElement
@@ -196,6 +200,7 @@ async function handleConfirmDelete(): Promise<void> {
         v-else-if="paginatedCourses.length"
         :courses="paginatedCourses"
         @view="handleView"
+        @edit="handleEdit"
         @delete="handleDelete"
       />
 

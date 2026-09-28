@@ -51,6 +51,7 @@ async function mountPage() {
     routes: [
       { path: '/courses', component: CoursesPage },
       { path: '/courses/new', component: { template: '<div>Add page</div>' } },
+      { path: '/courses/:id/edit', component: { template: '<div>Edit page</div>' } },
       { path: '/courses/:id', component: { template: '<div>Detail page</div>' } },
     ],
   })
@@ -133,7 +134,7 @@ describe('CoursesPage API mode', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it('navigates Add and View to the course routes', async () => {
+  it('navigates Add, View, and Edit to the course routes', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(courses)))
 
     const { wrapper, router } = await mountPage()
@@ -153,6 +154,16 @@ describe('CoursesPage API mode', () => {
     await viewButton?.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/courses/1')
+
+    await router.push('/courses')
+    await flushPromises()
+
+    const editButton = wrapper.findAll('button')
+      .find(button => button.text() === 'Edit')
+    expect(editButton?.attributes('disabled')).toBeUndefined()
+    await editButton?.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/courses/1/edit')
   })
 
   it('keeps the dialog open on delete failure, then removes the course and refreshes related caches', async () => {

@@ -7,7 +7,7 @@ import {
 } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
-import { gradeKeys } from '@/core/api/query-keys'
+import { gradeKeys, studentKeys } from '@/core/api/query-keys'
 import { courseQueries } from '@/features/courses/api/course.queries'
 import { studentQueries } from '@/features/students/api/student.queries'
 import BaseButton from '@/shared/ui/BaseButton.vue'
@@ -74,6 +74,7 @@ const {
       )) ?? [],
     )
     void queryClient.invalidateQueries({ queryKey: gradeKeys.root })
+    void queryClient.invalidateQueries({ queryKey: studentKeys.gradeACounts() })
   },
 })
 

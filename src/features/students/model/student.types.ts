@@ -10,6 +10,16 @@ export interface StudentViewModel {
   birthDate: string
 }
 
+export interface StudentGradeACountDto {
+  studentName: string
+  gradeACount: number
+}
+
+export interface StudentGradeACountViewModel {
+  studentName: string
+  gradeACount: number
+}
+
 export interface CreateStudentInput {
   name: string
   birthDate: string

@@ -1,110 +1,100 @@
 <script setup lang="ts">
 import BaseCard from '@/shared/ui/BaseCard.vue'
 
-import type {
-  CourseGradeCount,
-  DashboardDataSource,
-} from '../model/dashboard.types'
+import type { StudentGradeACountRow } from '../model/dashboard.types'
 
 defineProps<{
-  rows: CourseGradeCount[]
+  rows: StudentGradeACountRow[]
   isLoading: boolean
-  errorSources: DashboardDataSource[]
+  isError: boolean
 }>()
 
 const emit = defineEmits<{
-  retry: [source: DashboardDataSource]
+  retry: []
 }>()
-
-function getSourceLabel(source: DashboardDataSource): string {
-  return source[0].toUpperCase() + source.slice(1)
-}
 </script>
 
 <template>
   <BaseCard
-    class="dashboard-panel course-grades"
-    aria-labelledby="grades-by-course-title"
+    class="dashboard-panel student-a-grades"
+    aria-labelledby="student-a-grades-title"
     :aria-busy="isLoading"
   >
     <header class="dashboard-panel__header">
       <div>
-        <h2 id="grades-by-course-title">
-          Grades by Course
+        <h2 id="student-a-grades-title">
+          A Grades by Student
         </h2>
-        <p>Number of grade records for each course</p>
+        <p>Number of A grades earned by each student</p>
       </div>
     </header>
 
     <div
-      v-if="errorSources.length"
+      v-if="isError"
       class="dashboard-panel__state dashboard-panel__state--error"
       role="alert"
     >
-      <p>Course grade counts are unavailable.</p>
-      <div class="dashboard-panel__retries">
-        <button
-          v-for="source in errorSources"
-          :key="source"
-          type="button"
-          @click="emit('retry', source)"
-        >
-          Retry {{ getSourceLabel(source) }}
-        </button>
-      </div>
+      <p>Student A-grade counts are unavailable.</p>
+      <button
+        type="button"
+        @click="emit('retry')"
+      >
+        Retry
+      </button>
     </div>
 
     <div
       v-else-if="isLoading"
       class="dashboard-panel__state"
       role="status"
+      aria-live="polite"
     >
-      Loading course grade counts…
+      Loading student A-grade counts…
     </div>
 
     <div
       v-else-if="rows.length === 0"
       class="dashboard-panel__state"
     >
-      No courses available.
+      No students available.
     </div>
 
     <ul
       v-else
-      class="course-grades__list"
+      class="student-a-grades__list"
     >
       <li
         v-for="row in rows"
-        :key="row.courseId"
-        class="course-grades__row"
+        :key="`${row.sourceIndex}-${row.studentName}-${row.gradeACount}`"
+        class="student-a-grades__row"
       >
         <span
-          class="course-grades__code"
-          :title="row.courseName"
+          class="student-a-grades__name"
+          :title="row.studentName"
         >
-          {{ row.courseCode }}
+          {{ row.studentName }}
         </span>
         <span
-          class="course-grades__track"
+          class="student-a-grades__track"
           aria-hidden="true"
         >
           <span
-            class="course-grades__bar"
+            class="student-a-grades__bar"
             :style="{ width: `${row.barPercent}%` }"
           />
         </span>
-        <span class="course-grades__count">
-          {{ row.gradeCount }}
-          <span class="sr-only">grade records</span>
+        <span class="student-a-grades__count">
+          {{ row.gradeACount }}
+          <span class="sr-only">A grades</span>
         </span>
       </li>
     </ul>
 
     <RouterLink
-      to="/grades"
+      to="/students"
       class="dashboard-panel__link"
     >
-      View all grades <span aria-hidden="true">→</span>
+      View all students <span aria-hidden="true">→</span>
     </RouterLink>
   </BaseCard>
 </template>
@@ -148,15 +138,9 @@ function getSourceLabel(source: DashboardDataSource): string {
   margin: 0;
 }
 
-.dashboard-panel__retries {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
+.dashboard-panel__state button {
+  justify-self: center;
   margin-top: 0.75rem;
-}
-
-.dashboard-panel__retries button {
   padding: 0.4rem 0.65rem;
   border: 1px solid var(--color-danger-border);
   border-radius: var(--radius-sm);
@@ -167,13 +151,13 @@ function getSourceLabel(source: DashboardDataSource): string {
   cursor: pointer;
 }
 
-.dashboard-panel__retries button:focus-visible,
+.dashboard-panel__state button:focus-visible,
 .dashboard-panel__link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.course-grades__list {
+.student-a-grades__list {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -184,35 +168,39 @@ function getSourceLabel(source: DashboardDataSource): string {
   list-style: none;
 }
 
-.course-grades__row {
+.student-a-grades__row {
   display: grid;
-  grid-template-columns: minmax(68px, auto) minmax(80px, 1fr) minmax(28px, auto);
+  grid-template-columns: minmax(0, 9rem) minmax(80px, 1fr) minmax(28px, auto);
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
 }
 
-.course-grades__code,
-.course-grades__count {
+.student-a-grades__name,
+.student-a-grades__count {
   color: var(--color-text-primary);
   font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
 }
 
-.course-grades__code {
+.student-a-grades__name {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.course-grades__track {
+.student-a-grades__count {
+  font-variant-numeric: tabular-nums;
+}
+
+.student-a-grades__track {
   height: 10px;
   overflow: hidden;
   border-radius: 999px;
   background: var(--color-border);
 }
 
-.course-grades__bar {
+.student-a-grades__bar {
   display: block;
   height: 100%;
   border-radius: inherit;
@@ -237,7 +225,8 @@ function getSourceLabel(source: DashboardDataSource): string {
     padding-inline: 1rem;
   }
 
-  .course-grades__row {
+  .student-a-grades__row {
+    grid-template-columns: minmax(0, 6.5rem) minmax(40px, 1fr) minmax(28px, auto);
     gap: 0.5rem;
   }
 }

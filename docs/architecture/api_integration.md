@@ -65,6 +65,7 @@ Update nhận cùng hai field `name` và `birthDate` (date-only), trả Student 
 | GET | `/course/all` | List, dashboard count, selectors |
 | GET | `/course/{id}` | Course detail |
 | POST | `/course` | Add Course |
+| PUT | `/course/{id}` | Update Course |
 | DELETE | `/course/{id}` | Delete Course |
 
 Create payload:
@@ -77,7 +78,7 @@ Create payload:
 }
 ```
 
-Không có PUT/PATCH Course.
+Update nhận cùng ba field `subject`, `code` và `description`, trả Course với HTTP 200. Create cũng trả Course với HTTP 200. Contract được xác nhận qua `/v3/api-docs` của backend local ngày 2026-09-28.
 
 ## 4. Grade endpoints
 

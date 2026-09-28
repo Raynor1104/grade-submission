@@ -19,7 +19,7 @@
 **Kết quả mong đợi**
 
 - UI Course Name map thành request field `subject`.
-- Create trả `201` và generated ID.
+- Create trả `200` với Course entity và generated ID.
 - Delete modal nêu đúng Course và cảnh báo grade cascade.
 - Cache course/grade/dashboard được refresh.
 
@@ -111,11 +111,21 @@ Mở `/app/courses/999999999`.
 
 ---
 
-## E2E-COURSE-018 — Edit Course bị blocked
+## E2E-COURSE-018 — Edit Course
 
-**Loại:** Blocked  
+**Loại:** Current UI + backend contract
 **AC:** `AC-COURSE-FE-07`, `AC-COURSE-FE-10`
 
-- Edit hidden/disabled.
-- Không gửi PUT/PATCH.
-- Không có happy-path update E2E trước khi backend hỗ trợ.
+1. Mở Courses List và chọn Edit trên một Course.
+2. Kiểm tra form preload đúng `code`, `subject`, `description`.
+3. Sửa cả ba field, giữ Course Code ở casing do user nhập và submit.
+4. Kiểm tra chỉ một `PUT /course/{id}` được gửi với payload đã trim.
+5. Kiểm tra điều hướng về `/courses/:id` và list/grade metadata được refresh.
+
+**Kết quả mong đợi**
+
+- Update trả `200` với Course entity.
+- Validation dùng chung với Create; whitespace-only không gọi API.
+- Pending chặn double submit; lỗi giữ draft và không redirect.
+- Cancel quay Courses List mà không gửi PUT.
+- Invalid route ID không phát GET/PUT; GET 404 hiển thị Course Not Found.

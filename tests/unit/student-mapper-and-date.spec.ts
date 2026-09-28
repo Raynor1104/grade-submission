@@ -7,6 +7,7 @@ import {
 import { ApiRequestError } from '@/core/api/types'
 import {
   mapStudentDto,
+  mapStudentGradeACountList,
   mapStudentList,
 } from '@/features/students/model/student.mapper'
 import { formatDisplayDate } from '@/shared/utils/date'
@@ -34,6 +35,29 @@ describe('student mapper', () => {
       name: 'Invalid',
       birthDate: '2000-01-01',
     })).toThrow('Student data is missing required fields.')
+  })
+
+  it('maps valid student A-grade counts without merging duplicate names', () => {
+    expect(mapStudentGradeACountList([
+      { studentName: 'Alex', gradeACount: 4 },
+      { studentName: 'Alex', gradeACount: 0 },
+    ])).toEqual([
+      { studentName: 'Alex', gradeACount: 4 },
+      { studentName: 'Alex', gradeACount: 0 },
+    ])
+  })
+
+  it.each([
+    {},
+    [{ gradeACount: 1 }],
+    [{ studentName: null, gradeACount: 1 }],
+    [{ studentName: 'A', gradeACount: '1' }],
+    [{ studentName: 'A', gradeACount: 1.5 }],
+    [{ studentName: 'A', gradeACount: -1 }],
+    [{ studentName: 'A', gradeACount: Number.NaN }],
+    [{ studentName: 'A', gradeACount: Number.POSITIVE_INFINITY }],
+  ])('rejects invalid student A-grade count payload %#', (payload) => {
+    expect(() => mapStudentGradeACountList(payload)).toThrow(ApiRequestError)
   })
 })
 

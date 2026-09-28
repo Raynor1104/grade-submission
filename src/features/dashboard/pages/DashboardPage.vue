@@ -16,11 +16,11 @@ import DashboardGradeRecords from '../components/DashboardGradeRecords.vue'
 import DashboardQuickActions from '../components/DashboardQuickActions.vue'
 import DashboardSummaryCard from '../components/DashboardSummaryCard.vue'
 import DataAttentionCard from '../components/DataAttentionCard.vue'
-import GradesByCourseCard from '../components/GradesByCourseCard.vue'
+import StudentGradeACountCard from '../components/StudentGradeACountCard.vue'
 import {
-  getCourseGradeCounts,
   getCoursesWithoutGrades,
   getGradePreview,
+  getStudentGradeACountRows,
   getStudentsWithoutGrades,
 } from '../model/dashboard.derived'
 import type { DashboardDataSource } from '../model/dashboard.types'
@@ -46,14 +46,12 @@ const {
   refetch: refetchGrades,
 } = useQuery(gradeQueries.all())
 
-const courseGradeErrors = computed<DashboardDataSource[]>(() => {
-  const sources: DashboardDataSource[] = []
-
-  if (coursesError.value) sources.push('courses')
-  if (gradesError.value) sources.push('grades')
-
-  return sources
-})
+const {
+  data: studentGradeACounts,
+  isPending: studentGradeACountsPending,
+  isError: studentGradeACountsError,
+  refetch: refetchStudentGradeACounts,
+} = useQuery(studentQueries.gradeACounts())
 
 const studentAttentionErrors = computed<DashboardDataSource[]>(() => {
   const sources: DashboardDataSource[] = []
@@ -73,11 +71,6 @@ const courseAttentionErrors = computed<DashboardDataSource[]>(() => {
   return sources
 })
 
-const courseGradeLoading = computed(() => (
-  courseGradeErrors.value.length === 0 &&
-  (coursesPending.value || gradesPending.value)
-))
-
 const studentAttentionLoading = computed(() => (
   studentAttentionErrors.value.length === 0 &&
   (studentsPending.value || gradesPending.value)
@@ -88,11 +81,11 @@ const courseAttentionLoading = computed(() => (
   (coursesPending.value || gradesPending.value)
 ))
 
-const courseGradeRows = computed(() => {
-  if (!courses.value || !grades.value) return []
-
-  return getCourseGradeCounts(courses.value, grades.value)
-})
+const studentGradeACountRows = computed(() => (
+  studentGradeACounts.value
+    ? getStudentGradeACountRows(studentGradeACounts.value)
+    : []
+))
 
 const studentsWithoutGrades = computed(() => {
   if (!students.value || !grades.value) return null
@@ -122,6 +115,10 @@ function retrySource(source: DashboardDataSource): void {
   }
 
   void refetchGrades()
+}
+
+function retryStudentGradeACounts(): void {
+  void refetchStudentGradeACounts()
 }
 </script>
 
@@ -170,11 +167,11 @@ function retrySource(source: DashboardDataSource): void {
     <DashboardQuickActions />
 
     <div class="dashboard-page__analytics">
-      <GradesByCourseCard
-        :rows="courseGradeRows"
-        :is-loading="courseGradeLoading"
-        :error-sources="courseGradeErrors"
-        @retry="retrySource"
+      <StudentGradeACountCard
+        :rows="studentGradeACountRows"
+        :is-loading="studentGradeACountsPending"
+        :is-error="studentGradeACountsError"
+        @retry="retryStudentGradeACounts"
       />
 
       <DataAttentionCard

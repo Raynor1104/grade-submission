@@ -5,16 +5,19 @@ import {
 } from 'vitest'
 
 import {
-  getCourseGradeCounts,
   getCoursesWithoutGrades,
   getDashboardAttention,
   getDashboardSummary,
   getGradePreview,
+  getStudentGradeACountRows,
   getStudentsWithoutGrades,
 } from '@/features/dashboard/model/dashboard.derived'
 import type { CourseViewModel } from '@/features/courses/model/course.types'
 import type { GradeViewModel } from '@/features/grades/model/grade.types'
-import type { StudentViewModel } from '@/features/students/model/student.types'
+import type {
+  StudentGradeACountViewModel,
+  StudentViewModel,
+} from '@/features/students/model/student.types'
 
 const students: StudentViewModel[] = [
   { id: 10, name: 'A', birthDate: '2000-01-01' },
@@ -72,41 +75,42 @@ describe('dashboard derived values', () => {
     })
   })
 
-  it('ranks grade record counts, resolves ties by code, includes zeroes, and limits rows', () => {
-    const courseSnapshot = structuredClone(courses)
-    const gradeSnapshot = structuredClone(grades)
-    const rows = getCourseGradeCounts(courses, grades)
+  it('ranks student A-grade counts with deterministic ties and does not mutate input', () => {
+    const counts: StudentGradeACountViewModel[] = [
+      { studentName: 'Charlie', gradeACount: 3 },
+      { studentName: 'Alex', gradeACount: 5 },
+      { studentName: 'Zero', gradeACount: 0 },
+      { studentName: 'Bob', gradeACount: 3 },
+      { studentName: 'Alice', gradeACount: 3 },
+      { studentName: 'Alex', gradeACount: 5 },
+    ]
+    const snapshot = structuredClone(counts)
+    const rows = getStudentGradeACountRows(counts)
 
-    expect(rows.map(row => [row.courseCode, row.gradeCount])).toEqual([
-      ['TOP', 2],
-      ['ALPHA', 1],
-      ['BETA', 1],
-      ['EXTRA', 0],
-      ['LAST', 0],
+    expect(rows.map(row => [
+      row.studentName,
+      row.gradeACount,
+      row.sourceIndex,
+    ])).toEqual([
+      ['Alex', 5, 1],
+      ['Alex', 5, 5],
+      ['Alice', 3, 4],
+      ['Bob', 3, 3],
+      ['Charlie', 3, 0],
     ])
-    expect(rows.map(row => row.barPercent)).toEqual([100, 50, 50, 0, 0])
-    expect(courses).toEqual(courseSnapshot)
-    expect(grades).toEqual(gradeSnapshot)
+    expect(rows.map(row => row.barPercent)).toEqual([100, 100, 60, 60, 60])
+    expect(counts).toEqual(snapshot)
   })
 
-  it('returns zero-width bars when every course has zero grade records', () => {
-    expect(getCourseGradeCounts(courses.slice(0, 2), []))
-      .toEqual([
-        {
-          courseId: 300,
-          courseCode: 'BETA',
-          courseName: 'Beta',
-          gradeCount: 0,
-          barPercent: 0,
-        },
-        {
-          courseId: 700,
-          courseCode: 'ZERO',
-          courseName: 'Zero',
-          gradeCount: 0,
-          barPercent: 0,
-        },
-      ])
+  it('keeps zero-count students as rows and avoids division by zero', () => {
+    expect(getStudentGradeACountRows([
+      { studentName: 'B', gradeACount: 0 },
+      { studentName: 'A', gradeACount: 0 },
+    ])).toEqual([
+      { studentName: 'A', gradeACount: 0, sourceIndex: 1, barPercent: 0 },
+      { studentName: 'B', gradeACount: 0, sourceIndex: 0, barPercent: 0 },
+    ])
+    expect(getStudentGradeACountRows([], -1)).toEqual([])
   })
 
   it('counts parent entities whose IDs never appear in grades', () => {

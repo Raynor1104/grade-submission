@@ -21,6 +21,7 @@ import {
 
 import { mockStudents } from '@/features/students/model/student.mock'
 import StudentsPage from '@/features/students/pages/StudentsPage.vue'
+import { studentKeys } from '@/core/api/query-keys'
 
 let activeWrapper: VueWrapper | undefined
 let queryClient: QueryClient | undefined
@@ -184,6 +185,9 @@ describe('StudentsPage API mode', () => {
 
     const { wrapper, router } = await mountPage('/students?page=2')
     await settleQueries()
+    queryClient?.setQueryData(studentKeys.gradeACounts(), [
+      { studentName: 'Phan Duc Long', gradeACount: 1 },
+    ])
 
     const rowDeleteButton = wrapper.findAll('button')
       .find(button => button.text() === 'Delete')
@@ -202,6 +206,8 @@ describe('StudentsPage API mode', () => {
       init?.method === 'DELETE'
     ))
     expect(deleteCalls).toHaveLength(1)
+    expect(queryClient?.getQueryState(studentKeys.gradeACounts())?.isInvalidated)
+      .toBe(true)
   })
 
   it('navigates Add and View to the canonical routes', async () => {

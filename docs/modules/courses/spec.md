@@ -1,8 +1,8 @@
 # Courses — Đặc tả frontend
 
 **Phụ trách:** Frontend team  
-**Trạng thái:** Partial — create/read/delete supported  
-**Cập nhật lần cuối:** 2026-07-22
+**Trạng thái:** Create/read/update/delete supported
+**Cập nhật lần cuối:** 2026-09-28
 
 ## 1. Phạm vi
 
@@ -10,10 +10,10 @@
 - Search theo code hoặc name.
 - Client-side pagination.
 - Add Course.
+- Edit Course.
 - Course Detail.
 - Students Taking This Course.
 - Delete Course với confirmation.
-- Edit Course bị chặn do backend chưa có update endpoint.
 
 ## 2. Field mapping
 
@@ -33,6 +33,7 @@ View model có thể dùng `name`, nhưng API mapper phải chuyển đúng sang
 | GET | `/course/all` | List, selector, dashboard count |
 | GET | `/course/{id}` | Course Detail |
 | POST | `/course` | Add Course |
+| PUT | `/course/{id}` | Edit Course |
 | DELETE | `/course/{id}` | Delete Course |
 | GET | `/grade/course/{courseId}` | Students Taking This Course |
 
@@ -46,12 +47,13 @@ Create body:
 }
 ```
 
+Update dùng cùng ba editable field và trả Course với HTTP 200. Contract được xác nhận qua OpenAPI backend local ngày 2026-09-28.
+
 ## 4. Course Management
 
 - Search không phân biệt hoa thường trên `code` và `subject`.
 - Pagination phía client, mặc định 10 items/page.
-- View và Delete supported.
-- Edit hidden/disabled.
+- View, Edit và Delete supported.
 - Duplicate code được DB enforce nhưng backend error chưa thân thiện; frontend chỉ hiển thị generic save failure nếu không nhận được stable conflict.
 
 ## 5. Add Course
@@ -94,8 +96,8 @@ Grade response chứa nested student, cho phép hiển thị:
 | AC-COURSE-FE-04 | Detail hiển thị course và grades theo course | ready |
 | AC-COURSE-FE-05 | Grade trong detail giữ nguyên string | ready |
 | AC-COURSE-FE-06 | Delete confirm và xử lý 204 | ready |
-| AC-COURSE-FE-07 | Edit không gọi API unsupported | ready |
+| AC-COURSE-FE-07 | Edit preload Course và gọi đúng `PUT /course/{id}` | ready |
 | AC-COURSE-FE-08 | GET unknown course hiển thị 404 | ready |
 | AC-COURSE-FE-09 | Duplicate code có error message ổn định | partial/blocked |
-| AC-COURSE-FE-10 | Backend update Course | blocked |
+| AC-COURSE-FE-10 | Backend update Course | ready |
 | AC-COURSE-FE-11 | Server-side search/pagination | backlog |

@@ -1,11 +1,14 @@
 import type { CourseViewModel } from '@/features/courses/model/course.types'
 import type { GradeViewModel } from '@/features/grades/model/grade.types'
-import type { StudentViewModel } from '@/features/students/model/student.types'
+import type {
+  StudentGradeACountViewModel,
+  StudentViewModel,
+} from '@/features/students/model/student.types'
 
 import type {
-  CourseGradeCount,
   DashboardAttention,
   DashboardSummary,
+  StudentGradeACountRow,
 } from './dashboard.types'
 
 export function getDashboardSummary(
@@ -20,49 +23,32 @@ export function getDashboardSummary(
   }
 }
 
-export function getCourseGradeCounts(
-  courses: readonly CourseViewModel[],
-  grades: readonly GradeViewModel[],
+export function getStudentGradeACountRows(
+  counts: readonly StudentGradeACountViewModel[],
   limit = 5,
-): CourseGradeCount[] {
-  const countByCourseId = new Map<number, number>()
-
-  for (const course of courses) {
-    countByCourseId.set(course.id, 0)
-  }
-
-  for (const grade of grades) {
-    const courseId = grade.course.id
-
-    countByCourseId.set(
-      courseId,
-      (countByCourseId.get(courseId) ?? 0) + 1,
-    )
-  }
-
-  const rankedCourses = courses
-    .map(course => ({
-      courseId: course.id,
-      courseCode: course.code,
-      courseName: course.subject,
-      gradeCount: countByCourseId.get(course.id) ?? 0,
+): StudentGradeACountRow[] {
+  const rankedStudents = counts
+    .map((student, sourceIndex) => ({
+      ...student,
+      sourceIndex,
     }))
     .sort((left, right) => (
-      right.gradeCount - left.gradeCount ||
-      left.courseCode.localeCompare(right.courseCode)
+      right.gradeACount - left.gradeACount ||
+      left.studentName.localeCompare(right.studentName) ||
+      left.sourceIndex - right.sourceIndex
     ))
     .slice(0, Math.max(0, limit))
 
-  const maxGradeCount = rankedCourses.reduce(
-    (maximum, course) => Math.max(maximum, course.gradeCount),
+  const maxGradeACount = rankedStudents.reduce(
+    (maximum, student) => Math.max(maximum, student.gradeACount),
     0,
   )
 
-  return rankedCourses.map(course => ({
-    ...course,
-    barPercent: maxGradeCount === 0
+  return rankedStudents.map(student => ({
+    ...student,
+    barPercent: maxGradeACount === 0
       ? 0
-      : (course.gradeCount / maxGradeCount) * 100,
+      : (student.gradeACount / maxGradeACount) * 100,
   }))
 }
 

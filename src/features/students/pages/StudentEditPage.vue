@@ -77,6 +77,7 @@ async function handleSubmit(values: StudentFormValues): Promise<void> {
     queryClient.setQueryData(studentKeys.detail(id), updated)
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: studentKeys.all() }),
+      queryClient.invalidateQueries({ queryKey: studentKeys.gradeACounts() }),
       queryClient.invalidateQueries({ queryKey: gradeKeys.root }),
     ])
     await router.push('/students')

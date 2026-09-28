@@ -2,6 +2,7 @@ export const studentKeys = {
   root: ['students'] as const,
   all: () => ['students', 'all'] as const,
   detail: (id: number) => ['students', 'detail', id] as const,
+  gradeACounts: () => ['students', 'grade-a-counts'] as const,
 }
 
 export const courseKeys = {

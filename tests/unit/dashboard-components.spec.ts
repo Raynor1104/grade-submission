@@ -17,7 +17,7 @@ import DashboardGradeRecords from '@/features/dashboard/components/DashboardGrad
 import DashboardQuickActions from '@/features/dashboard/components/DashboardQuickActions.vue'
 import DashboardSummaryCard from '@/features/dashboard/components/DashboardSummaryCard.vue'
 import DataAttentionCard from '@/features/dashboard/components/DataAttentionCard.vue'
-import GradesByCourseCard from '@/features/dashboard/components/GradesByCourseCard.vue'
+import StudentGradeACountCard from '@/features/dashboard/components/StudentGradeACountCard.vue'
 
 let wrapper: VueWrapper | undefined
 
@@ -27,6 +27,7 @@ function createTestRouter() {
     routes: [
       { path: '/', component: { template: '<div />' } },
       { path: '/students/new', component: { template: '<div />' } },
+      { path: '/students', component: { template: '<div />' } },
       { path: '/courses/new', component: { template: '<div />' } },
       { path: '/grades', component: { template: '<div />' } },
     ],
@@ -76,30 +77,60 @@ describe('Dashboard components', () => {
     expect(wrapper.text()).not.toContain('/grades/new')
   })
 
-  it('renders textual course counts and emits retry for the failed source', async () => {
+  it('renders accessible student A-grade rows, CTA, and an isolated retry', async () => {
     const router = createTestRouter()
-    wrapper = mount(GradesByCourseCard, {
+    wrapper = mount(StudentGradeACountCard, {
       props: {
-        rows: [{
-          courseId: 1,
-          courseCode: 'JAVA101',
-          courseName: 'Java Programming',
-          gradeCount: 2,
-          barPercent: 100,
-        }],
+        rows: [
+          {
+            studentName: 'Alex',
+            gradeACount: 2,
+            barPercent: 100,
+            sourceIndex: 0,
+          },
+          {
+            studentName: 'Alex',
+            gradeACount: 0,
+            barPercent: 0,
+            sourceIndex: 1,
+          },
+        ],
         isLoading: false,
-        errorSources: [],
+        isError: false,
       },
       global: { plugins: [router] },
     })
 
-    expect(wrapper.text()).toContain('JAVA101')
-    expect(wrapper.text()).toContain('2 grade records')
-    expect(wrapper.get('.course-grades__bar').attributes('style')).toContain('100%')
+    expect(wrapper.text()).toContain('A Grades by Student')
+    expect(wrapper.text()).toContain('Number of A grades earned by each student')
+    expect(wrapper.findAll('.student-a-grades__name')).toHaveLength(2)
+    expect(wrapper.text()).toContain('2 A grades')
+    expect(wrapper.text()).toContain('0 A grades')
+    expect(wrapper.get('.student-a-grades__bar').attributes('style')).toContain('100%')
+    expect(wrapper.get('a').attributes('href')).toBe('/students')
 
-    await wrapper.setProps({ errorSources: ['courses'] })
+    await wrapper.setProps({ isError: true })
     await wrapper.get('button').trigger('click')
-    expect(wrapper.emitted('retry')).toEqual([['courses']])
+    expect(wrapper.get('[role="alert"]').text()).toContain('unavailable')
+    expect(wrapper.emitted('retry')).toEqual([[]])
+  })
+
+  it('distinguishes empty student A-grade data from loading', async () => {
+    const router = createTestRouter()
+    wrapper = mount(StudentGradeACountCard, {
+      props: {
+        rows: [],
+        isLoading: false,
+        isError: false,
+      },
+      global: { plugins: [router] },
+    })
+
+    expect(wrapper.text()).toContain('No students available.')
+
+    await wrapper.setProps({ isLoading: true })
+    expect(wrapper.get('[role="status"]').text()).toContain('Loading')
+    expect(wrapper.text()).not.toContain('No students available.')
   })
 
   it('keeps attention metrics independent and retries their unavailable dependencies', async () => {

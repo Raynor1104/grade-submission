@@ -122,6 +122,9 @@ describe('StudentCreatePage', () => {
     }), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     const { wrapper, router } = await mountCreatePage()
+    queryClient?.setQueryData(studentKeys.gradeACounts(), [
+      { studentName: 'Existing', gradeACount: 1 },
+    ])
     await wrapper.get('#student-name').setValue('  Nguyễn Văn A  ')
     await wrapper.get('#student-birth-date').setValue('1980-07-31')
     await wrapper.get('form').trigger('submit')
@@ -136,6 +139,8 @@ describe('StudentCreatePage', () => {
     })
     expect(router.currentRoute.value.path).toBe('/students')
     expect(queryClient?.isFetching({ queryKey: studentKeys.root })).toBe(0)
+    expect(queryClient?.getQueryState(studentKeys.gradeACounts())?.isInvalidated)
+      .toBe(true)
   })
 
   it('keeps values and route after failure', async () => {

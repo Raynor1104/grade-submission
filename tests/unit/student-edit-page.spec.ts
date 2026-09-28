@@ -79,6 +79,9 @@ describe('StudentEditPage', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     const { wrapper, router } = await mountEdit()
+    queryClient?.setQueryData(studentKeys.gradeACounts(), [
+      { studentName: 'Original', gradeACount: 2 },
+    ])
     expect(wrapper.text()).toContain('Loading student...')
     await settle()
     expect((wrapper.get('#student-name').element as HTMLInputElement).value).toBe('Original')
@@ -99,6 +102,8 @@ describe('StudentEditPage', () => {
     expect(queryClient?.getQueryData(studentKeys.detail(12))).toEqual({
       ...student, name: 'Edited',
     })
+    expect(queryClient?.getQueryState(studentKeys.gradeACounts())?.isInvalidated)
+      .toBe(true)
     expect(router.currentRoute.value.path).toBe('/students')
   })
 

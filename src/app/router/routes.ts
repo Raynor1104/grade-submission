@@ -65,13 +65,19 @@ export const routes: RouteRecordRaw[] = [
         path: 'courses/new',
         name: 'course-create',
         component: () =>
-          import('@/features/courses/pages/CourseCreatePage.vue')
+          import('@/features/courses/pages/CourseCreatePage.vue'),
+      },
+      {
+        path: 'courses/:id/edit',
+        name: 'course-edit',
+        component: () =>
+          import('@/features/courses/pages/CourseEditPage.vue'),
       },
       {
         path: 'courses/:id',
         name: 'course-detail',
         component: () =>
-          import('@/features/courses/pages/CourseDetailPage.vue')
+          import('@/features/courses/pages/CourseDetailPage.vue'),
       },
       {
         path: 'grades',

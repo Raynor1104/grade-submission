@@ -14,6 +14,7 @@ defineProps<{
 
 const emit = defineEmits<{
   view: [course: CourseViewModel]
+  edit: [course: CourseViewModel]
   delete: [course: CourseViewModel]
 }>()
 </script>
@@ -72,8 +73,7 @@ const emit = defineEmits<{
                         <BaseButton
                             size="sm"
                             variant="secondary"
-                            disabled
-                            title="Edit is currently unavailable"
+                            @click="emit('edit', course)"
                         >
                             <Pencil :size="14" />
 

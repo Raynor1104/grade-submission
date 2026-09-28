@@ -16,7 +16,7 @@ import {
 } from '@tanstack/vue-query'
 
 import GradesPage from '@/features/grades/pages/GradesPage.vue'
-import { gradeKeys } from '@/core/api/query-keys'
+import { gradeKeys, studentKeys } from '@/core/api/query-keys'
 
 const students = [
   { id: 1, name: 'Student One', birthDate: '2000-01-01' },
@@ -187,6 +187,9 @@ describe('GradesPage API mode', () => {
 
     const wrapper = mountPage()
     await settleQueries()
+    queryClient?.setQueryData(studentKeys.gradeACounts(), [
+      { studentName: 'Student One', gradeACount: 4 },
+    ])
 
     const trigger = wrapper.findAll('button').find(button => button.text() === 'Delete')
     trigger?.element.focus()
@@ -208,6 +211,8 @@ describe('GradesPage API mode', () => {
     expect(wrapper.find('dialog').exists()).toBe(false)
     expect(wrapper.find('tbody').text()).not.toContain('Student One')
     expect(queryClient?.getQueryData(gradeKeys.all())).toEqual(apiGrades)
+    expect(queryClient?.getQueryState(studentKeys.gradeACounts())?.isInvalidated)
+      .toBe(true)
     expect(deleteAttempts).toBe(2)
   })
 })

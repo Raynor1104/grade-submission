@@ -6,12 +6,11 @@ export interface DashboardSummary {
   totalGrades: number
 }
 
-export interface CourseGradeCount {
-  courseId: number
-  courseCode: string
-  courseName: string
-  gradeCount: number
+export interface StudentGradeACountRow {
+  studentName: string
+  gradeACount: number
   barPercent: number
+  sourceIndex: number
 }
 
 export interface DashboardAttention {

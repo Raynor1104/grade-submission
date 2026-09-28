@@ -2,6 +2,8 @@ import { createClientError } from '@/core/api/types'
 
 import type {
   StudentDto,
+  StudentGradeACountDto,
+  StudentGradeACountViewModel,
   StudentViewModel,
 } from './student.types'
 
@@ -38,4 +40,43 @@ export function mapStudentList(value: unknown): StudentViewModel[] {
   }
 
   return value.map(mapStudentDto)
+}
+
+export function mapStudentGradeACountDto(
+  value: unknown,
+): StudentGradeACountViewModel {
+  if (!isRecord(value)) {
+    throw createClientError('Student grade A count data has an invalid shape.', value)
+  }
+
+  const dto = value as Partial<StudentGradeACountDto>
+
+  if (
+    typeof dto.studentName !== 'string' ||
+    !Number.isInteger(dto.gradeACount) ||
+    Number(dto.gradeACount) < 0
+  ) {
+    throw createClientError(
+      'Student grade A count data is missing required fields.',
+      value,
+    )
+  }
+
+  return {
+    studentName: dto.studentName,
+    gradeACount: dto.gradeACount as number,
+  }
+}
+
+export function mapStudentGradeACountList(
+  value: unknown,
+): StudentGradeACountViewModel[] {
+  if (!Array.isArray(value)) {
+    throw createClientError(
+      'Student grade A count response must be an array.',
+      value,
+    )
+  }
+
+  return value.map(mapStudentGradeACountDto)
 }

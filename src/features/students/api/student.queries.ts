@@ -2,7 +2,11 @@ import { queryOptions } from '@tanstack/vue-query'
 
 import { studentKeys } from '@/core/api/query-keys'
 
-import { getStudent, getStudents } from './student.api'
+import {
+  getStudent,
+  getStudentGradeACounts,
+  getStudents,
+} from './student.api'
 
 export const studentQueries = {
   all: () => queryOptions({
@@ -13,5 +17,9 @@ export const studentQueries = {
     queryKey: studentKeys.detail(id),
     queryFn: ({ signal }) => getStudent(id, signal),
     retry: false,
+  }),
+  gradeACounts: () => queryOptions({
+    queryKey: studentKeys.gradeACounts(),
+    queryFn: ({ signal }) => getStudentGradeACounts(signal),
   }),
 }
