@@ -102,6 +102,7 @@ async function mountDashboard(warmCache = false) {
       { path: '/students/new', component: { template: '<div />' } },
       { path: '/courses/new', component: { template: '<div />' } },
       { path: '/grades', component: { template: '<div />' } },
+      { path: '/grades/new', component: { template: '<div>Submit Grade Form</div>' } },
     ],
   })
   queryClient = new QueryClient({
@@ -153,6 +154,23 @@ afterEach(() => {
 })
 
 describe('DashboardPage', () => {
+  it('links the Submit Grade quick action to the grade creation page', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(jsonResponse([]))))
+
+    const result = await mountDashboard()
+    const submitGradeLink = result.wrapper.get('.quick-action--grade')
+
+    expect(submitGradeLink.element.tagName).toBe('A')
+    expect(submitGradeLink.attributes('href')).toBe('/grades/new')
+    expect(submitGradeLink.attributes('aria-disabled')).toBeUndefined()
+    expect(submitGradeLink.text()).not.toContain('Unavailable')
+
+    await submitGradeLink.trigger('click')
+    await flushPromises()
+
+    expect(result.router.currentRoute.value.path).toBe('/grades/new')
+  })
+
   it('loads all four sources and renders the aggregate A-grade card', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => (
       Promise.resolve(responseFor(getPath(input)))
@@ -263,7 +281,8 @@ describe('DashboardPage', () => {
     expect(result.wrapper.text()).toContain('Number of A grades earned by each student')
     expect(result.wrapper.text()).toContain('Nguyen Van A')
     expect(result.wrapper.text()).toContain('Grade Records')
-    expect(result.wrapper.text()).toContain('Unavailable')
+    expect(result.wrapper.text()).toContain('Submit Grade')
+    expect(result.wrapper.get('.quick-action--grade').text()).not.toContain('Unavailable')
     expect(result.wrapper.text()).not.toContain('Student service failed')
 
     await result.wrapper

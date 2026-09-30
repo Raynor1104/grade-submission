@@ -14,4 +14,9 @@ export const courseKeys = {
 export const gradeKeys = {
   root: ['grades'] as const,
   all: () => ['grades', 'all'] as const,
+  byStudent: (studentId: number) => ['grades', 'student', studentId] as const,
+  byCourse: (courseId: number) => ['grades', 'course', courseId] as const,
+  pair: (studentId: number, courseId: number) => (
+    ['grades', 'pair', studentId, courseId] as const
+  ),
 }

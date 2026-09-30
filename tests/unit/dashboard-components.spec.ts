@@ -30,6 +30,7 @@ function createTestRouter() {
       { path: '/students', component: { template: '<div />' } },
       { path: '/courses/new', component: { template: '<div />' } },
       { path: '/grades', component: { template: '<div />' } },
+      { path: '/grades/new', component: { template: '<div />' } },
     ],
   })
 }
@@ -60,7 +61,7 @@ describe('Dashboard components', () => {
     expect(wrapper.emitted('retry')).toHaveLength(1)
   })
 
-  it('renders two real quick-action links and a non-link disabled Grade action', () => {
+  it('renders all quick actions as links, including Submit Grade', () => {
     const router = createTestRouter()
     wrapper = mount(DashboardQuickActions, {
       global: { plugins: [router] },
@@ -71,10 +72,10 @@ describe('Dashboard components', () => {
     expect(links.map(link => link.attributes('href'))).toEqual([
       '/students/new',
       '/courses/new',
+      '/grades/new',
     ])
-    expect(wrapper.get('[aria-disabled="true"]').text())
-      .toContain('Unavailable until grade submission is implemented')
-    expect(wrapper.text()).not.toContain('/grades/new')
+    expect(wrapper.find('[aria-disabled="true"]').exists()).toBe(false)
+    expect(wrapper.get('.quick-action--grade').text()).toContain('Submit Grade')
   })
 
   it('renders accessible student A-grade rows, CTA, and an isolated retry', async () => {

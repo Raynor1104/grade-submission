@@ -49,10 +49,9 @@ import BaseCard from '@/shared/ui/BaseCard.vue'
         </span>
       </RouterLink>
 
-      <div
-        class="quick-action quick-action--grade quick-action--disabled"
-        aria-disabled="true"
-        aria-describedby="submit-grade-unavailable"
+      <RouterLink
+        to="/grades/new"
+        class="quick-action quick-action--grade"
       >
         <span
           class="quick-action__icon"
@@ -63,11 +62,8 @@ import BaseCard from '@/shared/ui/BaseCard.vue'
         <span class="quick-action__copy">
           <strong>Submit Grade</strong>
           <span>Add grade for a student</span>
-          <small id="submit-grade-unavailable">
-            Unavailable until grade submission is implemented
-          </small>
         </span>
-      </div>
+      </RouterLink>
     </div>
   </BaseCard>
 </template>
@@ -113,7 +109,7 @@ import BaseCard from '@/shared/ui/BaseCard.vue'
   transition: border-color 150ms ease, transform 150ms ease;
 }
 
-.quick-action:not(.quick-action--disabled):hover {
+.quick-action:hover {
   border-color: currentcolor;
   transform: translateY(-1px);
 }
@@ -136,11 +132,6 @@ import BaseCard from '@/shared/ui/BaseCard.vue'
 .quick-action--grade {
   background: var(--color-accent-light);
   color: var(--color-accent);
-}
-
-.quick-action--disabled {
-  cursor: not-allowed;
-  opacity: 0.62;
 }
 
 .quick-action__icon {
@@ -168,13 +159,6 @@ import BaseCard from '@/shared/ui/BaseCard.vue'
   color: var(--color-text-secondary);
   font-size: 0.75rem;
   line-height: 1.35;
-}
-
-.quick-action__copy small {
-  margin-top: 0.15rem;
-  color: var(--color-text-muted);
-  font-size: 0.675rem;
-  line-height: 1.25;
 }
 
 @media (max-width: 1023px) {

@@ -23,3 +23,7 @@ export interface GradeViewModel {
   student: GradeStudent
   course: GradeCourse
 }
+
+export interface GradeInput {
+  score: string
+}

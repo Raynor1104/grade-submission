@@ -6,8 +6,9 @@ import {
   watch,
 } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useRouter } from 'vue-router'
 
-import { gradeKeys, studentKeys } from '@/core/api/query-keys'
+import { gradeKeys } from '@/core/api/query-keys'
 import { courseQueries } from '@/features/courses/api/course.queries'
 import { studentQueries } from '@/features/students/api/student.queries'
 import BaseButton from '@/shared/ui/BaseButton.vue'
@@ -17,7 +18,10 @@ import PageHeader from '@/shared/ui/PageHeader.vue'
 import Pagination from '@/shared/ui/Pagination.vue'
 
 import { deleteGrade } from '../api/grade.api'
-import { gradeQueries } from '../api/grade.queries'
+import {
+  gradeQueries,
+  invalidateGradeDependencies,
+} from '../api/grade.queries'
 import GradeTable from '../components/GradeTable.vue'
 import GradeToolbar from '../components/GradeToolbar.vue'
 
@@ -28,6 +32,7 @@ import type {
 } from '../model/grade.types'
 
 const queryClient = useQueryClient()
+const router = useRouter()
 
 const {
   data: gradeData,
@@ -66,15 +71,22 @@ const {
   reset: resetDeleteMutation,
 } = useMutation({
   mutationFn: (grade: GradeViewModel) => deleteGrade(grade.student.id, grade.course.id),
-  onSuccess: (_data, grade) => {
+  onSuccess: async (_data, grade) => {
     queryClient.setQueryData<GradeViewModel[]>(
       gradeKeys.all(),
       currentGrades => currentGrades?.filter(item => (
         item.student.id !== grade.student.id || item.course.id !== grade.course.id
       )) ?? [],
     )
-    void queryClient.invalidateQueries({ queryKey: gradeKeys.root })
-    void queryClient.invalidateQueries({ queryKey: studentKeys.gradeACounts() })
+    queryClient.removeQueries({
+      queryKey: gradeKeys.pair(grade.student.id, grade.course.id),
+      exact: true,
+    })
+    await invalidateGradeDependencies(
+      queryClient,
+      grade.student.id,
+      grade.course.id,
+    )
   },
 })
 
@@ -150,11 +162,17 @@ function handleSearch() {
 }
 
 function handleCreate() {
-  console.log('Submit new grade')
+  void router.push({ name: 'grade-create' })
 }
 
 function handleEdit(grade: GradeViewModel) {
-  console.log('Edit grade:', grade)
+  void router.push({
+    name: 'grade-edit',
+    params: {
+      studentId: grade.student.id,
+      courseId: grade.course.id,
+    },
+  })
 }
 
 function handleDelete(grade: GradeViewModel): void {

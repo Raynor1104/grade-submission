@@ -85,6 +85,18 @@ export const routes: RouteRecordRaw[] = [
         component: () =>
           import('@/features/grades/pages/GradesPage.vue'),
       },
+      {
+        path: 'grades/new',
+        name: 'grade-create',
+        component: () =>
+          import('@/features/grades/pages/GradeCreatePage.vue'),
+      },
+      {
+        path: 'grades/:studentId/:courseId/edit',
+        name: 'grade-edit',
+        component: () =>
+          import('@/features/grades/pages/GradeEditPage.vue'),
+      },
     ],
   },
 ]

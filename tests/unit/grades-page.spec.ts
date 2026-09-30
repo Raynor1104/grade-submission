@@ -14,9 +14,18 @@ import {
   QueryClient,
   VueQueryPlugin,
 } from '@tanstack/vue-query'
+import {
+  createMemoryHistory,
+  createRouter,
+  type Router,
+} from 'vue-router'
 
 import GradesPage from '@/features/grades/pages/GradesPage.vue'
-import { gradeKeys, studentKeys } from '@/core/api/query-keys'
+import {
+  courseKeys,
+  gradeKeys,
+  studentKeys,
+} from '@/core/api/query-keys'
 
 const students = [
   { id: 1, name: 'Student One', birthDate: '2000-01-01' },
@@ -47,6 +56,7 @@ const grades = Array.from({ length: 7 }, (_, index) => {
 
 let activeWrapper: VueWrapper | undefined
 let queryClient: QueryClient | undefined
+let router: Router | undefined
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -73,7 +83,19 @@ function createApiResponse(path: string): Response {
   return jsonResponse({ message: 'Not found' }, 404)
 }
 
-function mountPage() {
+async function mountPage() {
+  router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/grades', name: 'grades', component: GradesPage },
+      { path: '/grades/new', name: 'grade-create', component: { template: '<div>Create</div>' } },
+      {
+        path: '/grades/:studentId/:courseId/edit',
+        name: 'grade-edit',
+        component: { template: '<div>Edit</div>' },
+      },
+    ],
+  })
   queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -83,11 +105,13 @@ function mountPage() {
       },
     },
   })
+  await router.push('/grades')
+  await router.isReady()
 
   activeWrapper = mount(GradesPage, {
     attachTo: document.body,
     global: {
-      plugins: [[VueQueryPlugin, { queryClient }]],
+      plugins: [router, [VueQueryPlugin, { queryClient }]],
     },
   })
 
@@ -99,6 +123,7 @@ afterEach(() => {
   activeWrapper = undefined
   queryClient?.clear()
   queryClient = undefined
+  router = undefined
   document.body.innerHTML = ''
   vi.unstubAllGlobals()
 })
@@ -110,7 +135,7 @@ describe('GradesPage API mode', () => {
     ))
     vi.stubGlobal('fetch', fetchMock)
 
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
     expect(wrapper.text()).toContain('Loading grade data...')
 
     await settleQueries()
@@ -150,7 +175,7 @@ describe('GradesPage API mode', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
     await settleQueries()
 
     expect(wrapper.get('[role="alert"]').text()).toContain('Unable to load grade data')
@@ -185,11 +210,14 @@ describe('GradesPage API mode', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const wrapper = mountPage()
+    const wrapper = await mountPage()
     await settleQueries()
     queryClient?.setQueryData(studentKeys.gradeACounts(), [
       { studentName: 'Student One', gradeACount: 4 },
     ])
+    queryClient?.setQueryData(studentKeys.detail(1), students[0])
+    queryClient?.setQueryData(courseKeys.detail(10), courses[0])
+    queryClient?.setQueryData(gradeKeys.pair(1, 10), grades[0])
 
     const trigger = wrapper.findAll('button').find(button => button.text() === 'Delete')
     trigger?.element.focus()
@@ -213,6 +241,32 @@ describe('GradesPage API mode', () => {
     expect(queryClient?.getQueryData(gradeKeys.all())).toEqual(apiGrades)
     expect(queryClient?.getQueryState(studentKeys.gradeACounts())?.isInvalidated)
       .toBe(true)
+    expect(queryClient?.getQueryState(studentKeys.detail(1))?.isInvalidated)
+      .toBe(true)
+    expect(queryClient?.getQueryState(courseKeys.detail(10))?.isInvalidated)
+      .toBe(true)
+    expect(queryClient?.getQueryState(gradeKeys.pair(1, 10))).toBeUndefined()
     expect(deleteAttempts).toBe(2)
+  })
+
+  it('navigates Create and Edit entry points with the Grade pair identity', async () => {
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => (
+      Promise.resolve(createApiResponse(getPath(input)))
+    )))
+    const wrapper = await mountPage()
+    await settleQueries()
+
+    await wrapper.findAll('button')
+      .find(button => button.text() === 'Submit New Grade')
+      ?.trigger('click')
+    await flushPromises()
+    expect(router?.currentRoute.value.path).toBe('/grades/new')
+
+    await router?.push('/grades')
+    await wrapper.findAll('button')
+      .find(button => button.text() === 'Edit')
+      ?.trigger('click')
+    await flushPromises()
+    expect(router?.currentRoute.value.path).toBe('/grades/1/10/edit')
   })
 })
